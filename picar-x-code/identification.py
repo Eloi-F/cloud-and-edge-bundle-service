@@ -11,16 +11,11 @@ cap = cv2.VideoCapture(0)
 cap.set(3, 640)
 cap.set(4, 480)
 
-# Stores latency measurements
-responses = []
 
-
-def identification(responses_cloud, api, endpoint):
+def identification(responses_cloud: list[float], api: str, endpoint: str):
     """
     Main object-identification loop.
     """
-    response_data = []
-
     while True:
         # Capture a frame from the camera, encode it as jpeg, and convert it to Base64
         _, img = cap.read()
@@ -65,8 +60,7 @@ def identification(responses_cloud, api, endpoint):
         print("delay identification [cloud] = ", (t2 - t1) * 1000)
 
         # Store latency value in milliseconds
-        response_data.append((t2 - t1) * 1000)
+        responses_cloud.append((t2 - t1) * 1000)
 
     # Originally intended latency collection
-    # responses_cloud.append(response_data)
     # print(responses_cloud)

@@ -27,28 +27,30 @@ The application relies on multiple threads:
 - identification()     : image/object recognition (external module)
 """
 
-from picarx import Picarx
-from time import sleep
-import time
-import threading
-import requests
-from identification import identification
-import webbrowser
 import json
+import requests
+import threading
+import time
+import webbrowser
+from time import sleep
+
+from picarx import Picarx
+
+from identification import identification
 
 px = Picarx()
-current_state = None
-px_power = 10
-offset = 20
+current_state: str | None = None
+px_power: int = 10
+offset: int = 20
 
 # Last valid line-following state
 # Used when the line is temporarily lost
-last_state = "stop"
+last_state: str = "stop"
 lock = threading.Lock()
 
 # Stores latency measurements
-responses = []
-responses_cloud = []
+responses: list[float] = []
+responses_cloud: list[float] = []
 
 
 def save_response_times_to_file(filename="cloud_edge_response_latency.json"):
@@ -88,17 +90,14 @@ def outHandle():
     sleep(0.001)
 
 
-def get_status(val_list):
+def get_status(val_list: list[int]):
     """
     Convert grayscale sensor readings into a navigation command.
     """
     _state = px.get_line_status(val_list)
 
-    if _state == [0, 0, 0]:
-        return "stop"
-
     # Left sensor sees the line
-    elif _state[0] == 1:
+    if _state[0] == 1:
         return "right"
 
     # Center sensor sees the line
@@ -108,6 +107,10 @@ def get_status(val_list):
     # Right sensor sees the line
     elif _state[2] == 1:
         return "left"
+
+    # No line detected
+    else:
+        return "stop"
 
 
 def circulation():
@@ -156,7 +159,7 @@ def circulation():
         px.stop()
 
 
-def detection(api, endpoint):
+def detection(api: str, endpoint: str):
     """
     Obstacle detection and adaptive speed control.
 
@@ -192,7 +195,7 @@ def detection(api, endpoint):
             px_power = response.json()["vitesse"]
 
 
-def trajectory_planning(api, endpoint):
+def trajectory_planning(api: str, endpoint: str):
     """
     Request a route from the remote planning service.
 
@@ -223,7 +226,7 @@ def trajectory_planning(api, endpoint):
         print(f"Failed to retrieve map: " f"{response.status_code} - {response.text}")
 
 
-if __name__ == "__main__":
+def main():
     """
     Application entry point.
 
@@ -235,9 +238,9 @@ if __name__ == "__main__":
     4. Wait indefinitely for all threads.
     """
 
-    reponse = requests.get(url="http://[bundle-server-ip]:8000/get-bundle")
+    response = requests.get(url="http://[bundle-server-ip]:8000/get-bundle")
 
-    data = reponse.json()
+    data: dict[str, str] = response.json()
 
     # Measure route planning latency
     t1 = time.time()
@@ -246,19 +249,17 @@ if __name__ == "__main__":
 
     print("delay trajectory [cloud] = ", (t2 - t1) * 1000)
 
-    # Navigation thread
-    thread1 = threading.Thread(target=circulation)
-
-    # Obstacle detection thread
-    thread2 = threading.Thread(
-        target=detection,
-        args=(
-            data["api"],
-            data["endpoint1"],
-        ),
+    thread1 = threading.Thread(
+        target=circulation,
+        name="circulation",
     )
 
-    # Identification thread
+    thread2 = threading.Thread(
+        target=detection,
+        args=(data["api"], data["endpoint1"]),
+        name="detection",
+    )
+
     thread3 = threading.Thread(
         target=identification,
         args=(
@@ -266,6 +267,7 @@ if __name__ == "__main__":
             data["api"],
             data["endpoint2"],
         ),
+        name="identification",
     )
 
     thread1.start()
@@ -275,3 +277,7 @@ if __name__ == "__main__":
     thread1.join()
     thread2.join()
     thread3.join()
+
+
+if __name__ == "__main__":
+    main()
