@@ -26,9 +26,7 @@ The application relies on multiple threads:
 - detection()          : obstacle detection and speed control
 - identification()     : image/object recognition (external module)
 """
-
 import json
-import requests
 import threading
 import time
 import webbrowser
@@ -37,6 +35,7 @@ from time import sleep
 from picarx import Picarx
 
 from identification import identification
+from bundle import decision, get_trajectory_planning
 
 px = Picarx()
 current_state: str | None = None
@@ -159,7 +158,7 @@ def circulation():
         px.stop()
 
 
-def detection(api: str, endpoint: str):
+def detection():
     """
     Obstacle detection and adaptive speed control.
 
@@ -183,19 +182,17 @@ def detection(api: str, endpoint: str):
 
         # Measure network latency
         t1 = time.time()
-        url = f"http://[bundle-server-ip]:8000/{api}/{endpoint}"
-        response = requests.post(url=url, json=data)
+        response = decision(payload=data)
         t2 = time.time()
 
         response_data.append((t2 - t1) * 1000)
 
         print("latency detection [edge] = ", (t2 - t1) * 1000)
-
         with lock:
-            px_power = response.json()["vitesse"]
+            px_power = response.get("vitesse", 0)
 
 
-def trajectory_planning(api: str, endpoint: str):
+def trajectory_planning(start_address: str, destination_address: str):
     """
     Request a route from the remote planning service.
 
@@ -207,23 +204,17 @@ def trajectory_planning(api: str, endpoint: str):
     - Opens it in the default browser.
     """
     data = {
-        "start_address": "Tripode A",
-        "end_address": "7 avenue colonel roche",
+        "start_address": start_address,
+        "destination_address": destination_address,
     }
 
-    url = f"http://[bundle-server-ip]:8000/{api}/{endpoint}"
+    response = get_trajectory_planning(payload=data)
 
-    response = requests.post(url=url, json=data)
+    with open("received_map.html", "wb") as f:
+        f.write(response)
 
-    if response.status_code == 200:
-        with open("received_map.html", "wb") as f:
-            f.write(response.content)
-
-        print("Map saved as received_map.html")
-        webbrowser.open("received_map.html")
-
-    else:
-        print(f"Failed to retrieve map: " f"{response.status_code} - {response.text}")
+    print("Map saved as received_map.html")
+    webbrowser.open("received_map.html")
 
 
 def main():
@@ -237,14 +228,9 @@ def main():
     3. Start navigation, detection, and identification threads.
     4. Wait indefinitely for all threads.
     """
-
-    response = requests.get(url="http://[bundle-server-ip]:8000/get-bundle")
-
-    data: dict[str, str] = response.json()
-
     # Measure route planning latency
     t1 = time.time()
-    trajectory_planning(data["api"], data["endpoint3"])
+    trajectory_planning("Tripode A", "7 avenue colonel roche")
     t2 = time.time()
 
     print("delay trajectory [cloud] = ", (t2 - t1) * 1000)
@@ -256,17 +242,12 @@ def main():
 
     thread2 = threading.Thread(
         target=detection,
-        args=(data["api"], data["endpoint1"]),
         name="detection",
     )
 
     thread3 = threading.Thread(
         target=identification,
-        args=(
-            responses_cloud,
-            data["api"],
-            data["endpoint2"],
-        ),
+        args=(responses_cloud,),
         name="identification",
     )
 

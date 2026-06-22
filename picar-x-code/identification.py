@@ -1,8 +1,8 @@
-import requests
 import base64
 import time
 import cv2
 
+from bundle import get_identification
 
 # Initialize the default camera device
 cap = cv2.VideoCapture(0)
@@ -12,7 +12,7 @@ cap.set(3, 640)
 cap.set(4, 480)
 
 
-def identification(responses_cloud: list[float], api: str, endpoint: str):
+def identification(responses_cloud: list[float]):
     """
     Main object-identification loop.
     """
@@ -26,33 +26,28 @@ def identification(responses_cloud: list[float], api: str, endpoint: str):
 
         # Start latency measurement
         t1 = time.time()
+        response = get_identification(payload=data)
 
-        url = f"http://[bundle-server-ip]:8000/{api}/{endpoint}"
-        response = requests.post(url=url, json=data)
+        box = response["box"]
+        classId = response["classId"]
 
-        if response.status_code == 200 and response.json():
-            response = response.json()
+        # Draw bounding box around detected object
+        cv2.rectangle(img, box, color=(0, 255, 0), thickness=2)
 
-            box = response["box"]
-            classId = response["classId"]
+        # Display detected class label
+        cv2.putText(
+            img,
+            classId,
+            (box[0] + 10, box[1] + 30),
+            cv2.FONT_HERSHEY_COMPLEX,
+            1,
+            (0, 255, 0),
+            1,
+        )
 
-            # Draw bounding box around detected object
-            cv2.rectangle(img, box, color=(0, 255, 0), thickness=2)
-
-            # Display detected class label
-            cv2.putText(
-                img,
-                classId,
-                (box[0] + 10, box[1] + 30),
-                cv2.FONT_HERSHEY_COMPLEX,
-                1,
-                (0, 255, 0),
-                1,
-            )
-
-            # Display annotated frame
-            cv2.imshow("Output", img)
-            cv2.waitKey(1)
+        # Display annotated frame
+        cv2.imshow("Output", img)
+        cv2.waitKey(1)
 
         # End latency measurement
         t2 = time.time()
