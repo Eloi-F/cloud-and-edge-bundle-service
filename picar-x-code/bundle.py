@@ -14,10 +14,12 @@ This module acts as a lightweight client wrapper.
 """
 import requests
 from config import BundleConfig
+from metrics import measure
 
 config = BundleConfig()
 
 
+@measure("decision_edge")
 def decision(payload: dict) -> dict:
     """
     Send sensor data to the decision service.
@@ -29,6 +31,7 @@ def decision(payload: dict) -> dict:
     return response.json()
 
 
+@measure("identification_cloud")
 def get_identification(payload: dict) -> dict:
     """
     Send image data to the identification service.
@@ -40,6 +43,7 @@ def get_identification(payload: dict) -> dict:
     return response.json()
 
 
+@measure("trajectory_planning_cloud")
 def get_trajectory_planning(payload: dict) -> bytes:
     """
     Request a route map from trajectory planning service.

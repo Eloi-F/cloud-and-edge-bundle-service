@@ -26,9 +26,7 @@ The application relies on multiple threads:
 - detection()          : obstacle detection and speed control
 - identification()     : image/object recognition (external module)
 """
-import json
 import threading
-import time
 import webbrowser
 from time import sleep
 
@@ -46,20 +44,6 @@ offset: int = 20
 # Used when the line is temporarily lost
 last_state: str = "stop"
 lock = threading.Lock()
-
-# Stores latency measurements
-responses: list[float] = []
-responses_cloud: list[float] = []
-
-
-def save_response_times_to_file(filename="cloud_edge_response_latency.json"):
-    """
-    Save recorded latency measurements to a JSON file.
-    """
-    with open(filename, "w") as f:
-        json.dump(responses, f)
-
-    print(f"Temps de réponse sauvegardés dans {filename}")
 
 
 def outHandle():
@@ -170,7 +154,6 @@ def detection():
     - Receive and apply a new speed value.
     """
     global px_power
-    response_data = []
 
     while True:
         ultrasonic_percept = px.ultrasonic.read()
@@ -182,13 +165,8 @@ def detection():
         }
 
         # Measure network latency
-        t1 = time.time()
         response = decision(payload=data)
-        t2 = time.time()
 
-        response_data.append((t2 - t1) * 1000)
-
-        print("latency detection [edge] = ", (t2 - t1) * 1000)
         with lock:
             px_power = response.get("speed", 0)
 
@@ -230,11 +208,7 @@ def main():
     4. Wait indefinitely for all threads.
     """
     # Measure route planning latency
-    t1 = time.time()
     trajectory_planning("Tripode A", "7 avenue colonel roche")
-    t2 = time.time()
-
-    print("delay trajectory [cloud] = ", (t2 - t1) * 1000)
 
     thread1 = threading.Thread(
         target=circulation,
@@ -248,7 +222,6 @@ def main():
 
     thread3 = threading.Thread(
         target=identification,
-        args=(responses_cloud,),
         name="identification",
     )
 

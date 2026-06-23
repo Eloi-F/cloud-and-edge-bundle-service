@@ -1,5 +1,4 @@
 import base64
-import time
 import cv2
 
 from bundle import get_identification
@@ -12,7 +11,7 @@ cap.set(3, 640)
 cap.set(4, 480)
 
 
-def identification(responses_cloud: list[float]):
+def identification():
     """
     Main object-identification loop.
     """
@@ -24,8 +23,6 @@ def identification(responses_cloud: list[float]):
 
         data = {"img": img_base64}
 
-        # Start latency measurement
-        t1 = time.time()
         response = get_identification(payload=data)
 
         box = response["box"]
@@ -48,14 +45,3 @@ def identification(responses_cloud: list[float]):
         # Display annotated frame
         cv2.imshow("Output", img)
         cv2.waitKey(1)
-
-        # End latency measurement
-        t2 = time.time()
-
-        print("delay identification [cloud] = ", (t2 - t1) * 1000)
-
-        # Store latency value in milliseconds
-        responses_cloud.append((t2 - t1) * 1000)
-
-    # Originally intended latency collection
-    # print(responses_cloud)
