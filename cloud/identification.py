@@ -50,7 +50,7 @@ def identification(img_base64):
     # classIds contains detected classes (0 or 1)
     # confs contains the associated confidence score for each class
     # bbox contains the part of the image for each detected object
-    classIds, confs, bbox = net.detect(img, confThreshold=0.5)
+    classIds, confs, bbox = net.detect(img, confThreshold=0.6)
 
     # return array with all detected objects
     detections = []

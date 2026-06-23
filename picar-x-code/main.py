@@ -174,10 +174,11 @@ def detection():
 
     while True:
         ultrasonic_percept = px.ultrasonic.read()
-
+        gm_val_list = px.get_grayscale_data()
+        gm_state = px.get_cliff_status(gm_val_list)
         data = {
             "front": ultrasonic_percept,
-            "vitesse": px_power,
+            "state": gm_state
         }
 
         # Measure network latency
@@ -189,7 +190,7 @@ def detection():
 
         print("latency detection [edge] = ", (t2 - t1) * 1000)
         with lock:
-            px_power = response.get("vitesse", 0)
+            px_power = response.get("speed", 0)
 
 
 def trajectory_planning(start_address: str, destination_address: str):
