@@ -7,17 +7,27 @@ from fastapi.responses import FileResponse
 app = FastAPI()
 
 
-# identification capacitie
+# identification capacity
 @app.post("/identification")
 async def read_root(request: Request):
+    """
+    Function called on POST request to identification endpoint.
+    Call identification service on received image.
+    Send back array of detected objects to the client.
+    """
     data = await request.json()
     response = identification(data)
     return response
 
 
-# trajectory planning capacitie
+# trajectory planning capacity
 @app.post("/trajectory_planning")
 async def read_root(request: Request):
+    """
+    Function called on POST request to trajectory_planning endpoint.
+    Call trajectory service on given start and destination addresses.
+    Send back itinerary to the client.
+    """
     data = await request.json()
     start_address = data["start_address"]
     destination_address = data["destination_address"]
@@ -28,4 +38,5 @@ async def read_root(request: Request):
 
 
 if __name__ == "__main__":
+    # API's cloud Webserver
     uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
