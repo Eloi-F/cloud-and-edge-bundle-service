@@ -1,4 +1,0 @@
-numpy
-webbrowser
-requests
-opencv-python

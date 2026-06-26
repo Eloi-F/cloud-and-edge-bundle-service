@@ -32,8 +32,8 @@ from time import sleep
 
 from picarx import Picarx
 
-from identification import identification
-from bundle import decision, get_trajectory_planning
+from src.common.local.identification import identification
+from src.common.local.bundle import decision, get_trajectory_planning
 
 px = Picarx()
 current_state: str | None = None
@@ -159,10 +159,7 @@ def detection():
         ultrasonic_percept = px.ultrasonic.read()
         gm_val_list = px.get_grayscale_data()
         gm_state = px.get_cliff_status(gm_val_list)
-        data = {
-            "front": ultrasonic_percept,
-            "state": gm_state
-        }
+        data = {"front": ultrasonic_percept, "state": gm_state}
 
         # Measure network latency
         response = decision(payload=data)
@@ -196,7 +193,7 @@ def trajectory_planning(start_address: str, destination_address: str):
     webbrowser.open("received_map.html")
 
 
-def main():
+def run_sequential_logic():
     """
     Application entry point.
 
@@ -235,4 +232,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run_sequential_logic()
