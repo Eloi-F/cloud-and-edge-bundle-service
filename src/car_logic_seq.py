@@ -14,18 +14,12 @@ This script controls a PiCar-X robot and coordinates three main tasks:
    - Receives an updated speed value from the server.
 
 3. Object/person identification:
-   - Runs in a dedicated thread through the imported `identification` module.
+   - Sends a picture to the identification server
+   - Receives the picture annotated with the objects detected and a box around them
 
 Additionally, the script requests a route from a remote service, downloads an HTML map, and opens it in a browser.
-
-Architecture
-------------
-The application relies on multiple threads:
-
-- circulation()        : robot navigation and line following
-- detection()          : obstacle detection and speed control
-- identification()     : image/object recognition (external module)
 """
+
 import threading
 import webbrowser
 from time import sleep
@@ -46,7 +40,7 @@ last_state: str = "stop"
 lock = threading.Lock()
 
 
-def outHandle():
+def _outHandle():
     """
     Recovery procedure executed when the line is lost.
     """
@@ -62,7 +56,7 @@ def outHandle():
 
     while True:
         gm_val_list = px.get_grayscale_data()
-        gm_state = get_status(gm_val_list)
+        gm_state = _get_status(gm_val_list)
 
         currentSta = gm_state
 
@@ -73,7 +67,7 @@ def outHandle():
     sleep(0.001)
 
 
-def get_status(val_list: list[int]):
+def _get_status(val_list: list[int]):
     """
     Convert grayscale sensor readings into a navigation command.
     """
@@ -115,7 +109,7 @@ def circulation():
         while True:
             # Read line sensors
             gm_val_list = px.get_grayscale_data()
-            gm_state = get_status(gm_val_list)
+            gm_state = _get_status(gm_val_list)
 
             # Keep track of the most recent valid direction
             if gm_state != "stop":
@@ -136,7 +130,7 @@ def circulation():
 
             else:
                 # Attempt to recover the line
-                outHandle()
+                _outHandle()
 
     finally:
         px.stop()
@@ -194,41 +188,24 @@ def trajectory_planning(start_address: str, destination_address: str):
 
 
 def run_sequential_logic():
-    """
-    Application entry point.
-
-    Workflow
-    --------
-    1. Retrieve bundle configuration from the server.
-    2. Request route planning information.
-    3. Start navigation, detection, and identification threads.
-    4. Wait indefinitely for all threads.
-    """
-    # Measure route planning latency
-    trajectory_planning("Tripode A", "7 avenue colonel roche")
-
-    thread1 = threading.Thread(
+    line_following_t = threading.Thread(
         target=circulation,
         name="circulation",
     )
+    try:
+        trajectory_planning("Tripode A", "7 avenue colonel roche")
+        line_following_t = threading.Thread(
+            target=circulation,
+            name="circulation",
+        )
+        line_following_t.start()
+        while True:
+            detection()
+            identification()
 
-    thread2 = threading.Thread(
-        target=detection,
-        name="detection",
-    )
-
-    thread3 = threading.Thread(
-        target=identification,
-        name="identification",
-    )
-
-    thread1.start()
-    thread2.start()
-    thread3.start()
-
-    thread1.join()
-    thread2.join()
-    thread3.join()
+    except KeyboardInterrupt:
+        print("Ctrl+C pressed. Stopping...")
+        line_following_t.join()
 
 
 if __name__ == "__main__":

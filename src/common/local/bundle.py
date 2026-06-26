@@ -14,7 +14,7 @@ This module acts as a lightweight client wrapper.
 """
 import requests
 from config import BundleConfig
-from metrics import measure
+from src.common.latency_measurments.metrics import measure
 
 config = BundleConfig()
 
