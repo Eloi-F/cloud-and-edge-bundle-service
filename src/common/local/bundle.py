@@ -14,13 +14,13 @@ This module acts as a lightweight client wrapper.
 """
 import requests
 from config import BundleConfig
-from src.common.latency_measurments.metrics import measure
+from src.common.latency_measurments.metrics import SeqMetrics
 
 config = BundleConfig()
 
 
-@measure("decision_edge")
-def decision(payload: dict) -> dict:
+@SeqMetrics.measure("decision")
+def decision_seq(payload: dict) -> dict:
     """
     Send sensor data to the decision service.
     Returns updated control values (e.g. speed).
@@ -31,8 +31,8 @@ def decision(payload: dict) -> dict:
     return response.json()
 
 
-@measure("identification_cloud")
-def get_identification(payload: dict) -> dict:
+@SeqMetrics.measure("identification")
+def get_identification_seq(payload: dict) -> dict:
     """
     Send image data to the identification service.
     Returns detected objects.
@@ -43,8 +43,8 @@ def get_identification(payload: dict) -> dict:
     return response.json()
 
 
-@measure("trajectory_planning_cloud")
-def get_trajectory_planning(payload: dict) -> bytes:
+@SeqMetrics.measure("navigation")
+def get_trajectory_planning_seq(payload: dict) -> bytes:
     """
     Request a route map from trajectory planning service.
     Returns raw HTML content.

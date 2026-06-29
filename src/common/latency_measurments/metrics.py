@@ -2,46 +2,63 @@ from collections import defaultdict
 from time import perf_counter
 from functools import wraps
 import json
+import os
 
 
 class Metrics:
-    latencies = defaultdict(list)
+    @classmethod
+    def save_response_times_to_file(cls, scenario: str, values: list, filename: str):
+        """
+        Add or update recorded latency measurements to a JSON file.
+        """
+        data = {}
+
+        if os.path.exists(filename):
+            try:
+                with open(filename, "r") as f:
+                    data = json.load(f)
+            except (json.JSONDecodeError, IOError):
+                print(f"Warning: {filename} corrupted. Creating new file.")
+                data = {}
+
+        data[scenario] = values
+
+        with open(filename, "w") as f:
+            json.dump(data, f, indent=2)
+
+        print(f"Data for '{scenario}' saved to {filename}")
+
+
+class SeqMetrics(Metrics):
+    latencies = defaultdict(int)
 
     @classmethod
     def add_value(cls, name, value):
-        cls.latencies[name].append(value)
+        cls.latencies[name] = value
 
     @classmethod
-    def avg(cls, name):
-        values = cls.latencies[name]
-        return sum(values) / len(values)
+    def get_current_round_latencies(cls) -> dict[str, int]:
+        """
+        Return the values of latency for the current 'round'
+        """
+        return cls.latencies
 
     @classmethod
-    def save_response_times_to_file(cls, filename="cloud_edge_response_latency.json"):
-        """
-        Save recorded latency measurements to a JSON file.
-        """
-        with open(filename, "w") as f:
-            json.dump(cls.latencies, f)
+    def measure(cls, name):
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                start = perf_counter()
 
-        print(f"Temps de réponse sauvegardés dans {filename}")
+                try:
+                    return func(*args, **kwargs)
 
+                finally:
+                    cls.add_value(
+                        name,
+                        (perf_counter() - start) * 1000,
+                    )
 
-def measure(name):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            start = perf_counter()
+            return wrapper
 
-            try:
-                return func(*args, **kwargs)
-
-            finally:
-                Metrics.add_value(
-                    name,
-                    (perf_counter() - start) * 1000,
-                )
-
-        return wrapper
-
-    return decorator
+        return decorator

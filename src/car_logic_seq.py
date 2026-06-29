@@ -26,8 +26,9 @@ from time import sleep
 
 from picarx import Picarx
 
+from src.common.latency_measurments.metrics import SeqMetrics
 from src.common.local.identification import identification
-from src.common.local.bundle import decision, get_trajectory_planning
+from src.common.local.bundle import decision_seq, get_trajectory_planning_seq
 
 px = Picarx()
 current_state: str | None = None
@@ -156,7 +157,7 @@ def detection():
         data = {"front": ultrasonic_percept, "state": gm_state}
 
         # Measure network latency
-        response = decision(payload=data)
+        response = decision_seq(payload=data)
 
         with lock:
             px_power = response.get("speed", 0)
@@ -178,7 +179,7 @@ def trajectory_planning(start_address: str, destination_address: str):
         "destination_address": destination_address,
     }
 
-    response = get_trajectory_planning(payload=data)
+    response = get_trajectory_planning_seq(payload=data)
 
     with open("received_map.html", "wb") as f:
         f.write(response)
@@ -187,7 +188,8 @@ def trajectory_planning(start_address: str, destination_address: str):
     webbrowser.open("received_map.html")
 
 
-def run_sequential_logic():
+def run_sequential_logic(scenario: str = "bundle"):
+    values = []
     line_following_t = threading.Thread(
         target=circulation,
         name="circulation",
@@ -202,11 +204,16 @@ def run_sequential_logic():
         while True:
             detection()
             identification()
+            values.append(SeqMetrics.get_current_round_latencies())
 
     except KeyboardInterrupt:
         print("Ctrl+C pressed. Stopping...")
         line_following_t.join()
+        SeqMetrics.save_response_times_to_file(
+            scenario, values, "./data/sequential_lat.json"
+        )
 
 
 if __name__ == "__main__":
-    run_sequential_logic()
+    scenario = "full_cloud"
+    run_sequential_logic(scenario)
