@@ -1,0 +1,108 @@
+from time import sleep
+
+from picarx import Picarx
+
+from src.common.services.detection import px_power
+
+px = Picarx()
+offset: int = 20
+
+# Last valid line-following state
+# Used when the line is temporarily lost
+last_state: str = "stop"
+
+
+def _outHandle():
+    """
+    Recovery procedure executed when the line is lost.
+    """
+    global last_state, current_state
+
+    if last_state == "left":
+        px.set_dir_servo_angle(-30)
+        px.backward(10)
+
+    elif last_state == "right":
+        px.set_dir_servo_angle(30)
+        px.backward(10)
+
+    while True:
+        gm_val_list = px.get_grayscale_data()
+        gm_state = _get_status(gm_val_list)
+
+        currentSta = gm_state
+
+        # Exit recovery mode once the sensor state changes
+        if currentSta != last_state:
+            break
+
+        sleep(0.001)
+
+
+def _get_status(val_list: list[int]):
+    """
+    Convert grayscale sensor readings into a navigation command.
+    """
+    _state = px.get_line_status(val_list)
+
+    # Left sensor sees the line
+    if _state[0] == 1:
+        return "right"
+
+    # Center sensor sees the line
+    elif _state[1] == 1:
+        return "forward"
+
+    # Right sensor sees the line
+    elif _state[2] == 1:
+        return "left"
+
+    # No line detected
+    else:
+        return "stop"
+
+
+def circulation():
+    """
+    Main line-following control loop.
+
+    Responsibilities
+    ----------------
+    - Read grayscale sensors.
+    - Determine line position.
+    - Adjust steering angle.
+    - Drive the robot forward.
+    - Trigger recovery mode when the line is lost.
+
+    Runs continuously until the program exits.
+    """
+    global last_state
+    try:
+        while True:
+            # Read line sensors
+            gm_val_list = px.get_grayscale_data()
+            gm_state = _get_status(gm_val_list)
+
+            # Keep track of the most recent valid direction
+            if gm_state != "stop":
+                last_state = gm_state
+
+            # Steering logic
+            if gm_state == "forward":
+                px.set_dir_servo_angle(0)
+                px.forward(px_power)
+
+            elif gm_state == "left":
+                px.set_dir_servo_angle(offset)
+                px.forward(px_power)
+
+            elif gm_state == "right":
+                px.set_dir_servo_angle(-offset)
+                px.forward(px_power)
+
+            else:
+                # Attempt to recover the line
+                _outHandle()
+
+    finally:
+        px.stop()
