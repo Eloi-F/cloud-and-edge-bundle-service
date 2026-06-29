@@ -234,7 +234,9 @@ def run_threaded_logic(run_parameters: dict[str, int], scenario: str = "bundle")
     thread2.join()
     thread3.join()
 
-    Metrics.save_response_times_to_file(scenario, [], "./data/parallel_lat.json")
+    Metrics.save_response_times_to_file(
+        scenario, ConcurrentMetrics.get_latencies(), "./data/parallel_lat.json"
+    )
 
 
 if __name__ == "__main__":

@@ -35,18 +35,24 @@ class Metrics:
 
 
 class SeqMetrics(Metrics):
-    latencies = defaultdict(float)
+    round_latencies = defaultdict(float)
+    global_latencies = []
 
     @classmethod
     def add_value(cls, name, value):
-        cls.latencies[name] = value
+        cls.round_latencies[name] = value
 
     @classmethod
-    def get_current_round_latencies(cls) -> dict[str, float]:
+    def get_latencies(cls) -> list:
+        return cls.global_latencies
+
+    @classmethod
+    def update_round_latencies(cls):
         """
         Return the values of latency for the current 'round'
         """
-        return cls.latencies
+        cls.global_latencies.append(cls.round_latencies)
+        return
 
     @classmethod
     def measure(cls, name):
@@ -70,12 +76,16 @@ class SeqMetrics(Metrics):
 
 
 class ConcurrentMetrics(Metrics):
-    latencies = defaultdict(list)
+    global_latencies = defaultdict(list)
 
     @classmethod
     def add_value(cls, name, value):
         with lock:
-            cls.latencies[name].append(value)
+            cls.global_latencies[name].append(value)
+
+    @classmethod
+    def get_latencies(cls) -> dict:
+        return cls.global_latencies
 
     @classmethod
     def measure(cls, name):

@@ -188,8 +188,7 @@ def trajectory_planning(start_address: str, destination_address: str):
     webbrowser.open("received_map.html")
 
 
-def run_sequential_logic(scenario: str = "bundle"):
-    values = []
+def run_sequential_logic(cycle: int, scenario: str = "bundle"):
     line_following_t = threading.Thread(
         target=circulation,
         name="circulation",
@@ -201,19 +200,19 @@ def run_sequential_logic(scenario: str = "bundle"):
             name="circulation",
         )
         line_following_t.start()
-        while True:
+        for _ in range(cycle):
             detection()
             identification()
-            values.append(SeqMetrics.get_current_round_latencies())
+            SeqMetrics.update_round_latencies()
 
     except KeyboardInterrupt:
         print("Ctrl+C pressed. Stopping...")
         line_following_t.join()
         Metrics.save_response_times_to_file(
-            scenario, values, "./data/sequential_lat.json"
+            scenario, SeqMetrics.get_latencies(), "./data/sequential_lat.json"
         )
 
 
 if __name__ == "__main__":
     scenario = "full_cloud"
-    run_sequential_logic(scenario)
+    run_sequential_logic(10, scenario)
