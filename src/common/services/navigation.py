@@ -5,14 +5,13 @@ from src.common.local.bundle import get_trajectory_planning
 
 def trajectory_planning(start_address: str, destination_address: str):
     """
-    Request a route from the remote planning service.
+    Requests a route from the trajectory planning service.
 
-    Responsibilities
-    --------
-    - Sends a start and destination address.
-    - Receives an HTML map.
-    - Saves the map locally.
-    - Opens it in the default browser.
+    The generated HTML map is saved locally as `received_map.html`
+    and opened in the default web browser.
+
+    :param start_address: Starting location of the route.
+    :param destination_address: Destination of the route.
     """
     data = {
         "start_address": start_address,

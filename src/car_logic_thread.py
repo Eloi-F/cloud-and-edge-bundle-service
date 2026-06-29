@@ -2,29 +2,16 @@
 Autonomous PiCar-X Client
 =========================
 
-This script controls a PiCar-X robot and coordinates three main tasks:
+This module coordinates the multithreaded execution of the PiCar-X application.
 
-1. Line following (circulation):
-   - Uses the grayscale sensors to follow a line.
-   - Adjusts steering and motor speed according to the detected line position.
+Three independent threads are started:
 
-2. Obstacle detection (detection):
-   - Reads the ultrasonic sensor.
-   - Sends distance information to a remote service.
-   - Receives an updated speed value from the server.
+- circulation: Handles line following and robot navigation.
+- detection: Performs obstacle detection.
+- identification: Runs image/object identification.
 
-3. Object/person identification:
-   - Runs in a dedicated thread through the imported `identification` module.
-
-Additionally, the script requests a route from a remote service, downloads an HTML map, and opens it in a browser.
-
-Architecture
-------------
-The application relies on multiple threads:
-
-- circulation()        : robot navigation and line following
-- detection()          : obstacle detection and speed control
-- identification()     : image/object recognition (external module)
+Before starting the threads, a route is requested from the navigation service.
+When the application terminates, collected latency measurements are saved.
 """
 import threading
 
@@ -38,14 +25,17 @@ from src.common.local.line_following import circulation
 
 def run_threaded_logic(cycle_by_service: dict[str, int], scenario: str = "bundle"):
     """
-    Application entry point.
+    Runs the multithreaded version of the application.
 
-    Workflow
-    --------
-    1. Retrieve bundle configuration from the server.
-    2. Request route planning information.
-    3. Start navigation, detection, and identification threads.
-    4. Wait indefinitely for all threads.
+    Workflow:
+    1. Request a route from the navigation service.
+    2. Create the circulation, detection, and identification threads.
+    3. Start all threads.
+    4. Wait for all threads to complete.
+    5. Save latency measurements before exiting.
+
+    :param cycle_by_service: Execution cycle for each service.
+    :param scenario: Benchmark scenario used when saving latency metrics.
     """
     thread_circ = threading.Thread(
         target=circulation,
@@ -88,6 +78,6 @@ def run_threaded_logic(cycle_by_service: dict[str, int], scenario: str = "bundle
 
 
 if __name__ == "__main__":
-    scenario = "full_cloud"
+    scenario = "bundle"
     cycle_by_service = {"detection": 50, "identification": 20}
     run_threaded_logic(cycle_by_service, scenario)

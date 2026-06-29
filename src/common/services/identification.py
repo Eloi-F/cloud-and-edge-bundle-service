@@ -13,9 +13,17 @@ cap.set(4, 480)
 
 def identification(cycle: int = 100, parallel_exec: bool = False):
     """
-    Main object-identification loop.
+    Captures camera frames and sends them to the identification service.
 
-    cycle is unused when parallel_exec is at False
+    Each frame is encoded as JPEG, converted to Base64, and sent to either the
+    sequential or parallel identification endpoint. The returned bounding box
+    and class label are drawn on the frame before displaying it.
+
+    In sequential mode, the function processes a single frame and returns.
+    In parallel mode, it repeats the process for the specified number of cycles.
+
+    :param cycle: Number of iterations in parallel mode.
+    :param parallel_exec: Selects the parallel or sequential endpoint.
     """
     for _ in range(cycle):
         # Capture a frame from the camera, encode it as jpeg, and convert it to Base64

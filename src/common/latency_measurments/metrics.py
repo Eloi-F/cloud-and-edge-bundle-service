@@ -9,12 +9,23 @@ lock = threading.Lock()
 
 
 class Metrics:
+    """
+    Base class providing utilities for storing latency measurements.
+    """
+
     @classmethod
     def save_response_times_to_file(
         cls, scenario: str, values: list | dict, filename: str
     ):
         """
-        Add or update recorded latency measurements to a JSON file.
+        Saves latency measurements to a JSON file.
+
+        Existing data is preserved, and the measurements for the specified
+        benchmark scenario are added or updated.
+
+        :param scenario: Benchmark scenario name.
+        :param values: Recorded latency measurements.
+        :param filename: Output JSON file.
         """
         data = {}
 
@@ -35,6 +46,10 @@ class Metrics:
 
 
 class SeqMetrics(Metrics):
+    """
+    Collects latency measurements for the sequential benchmark.
+    """
+
     round_latencies = defaultdict(float)
     global_latencies = []
 
@@ -49,13 +64,18 @@ class SeqMetrics(Metrics):
     @classmethod
     def update_round_latencies(cls):
         """
-        Return the values of latency for the current 'round'
+        Stores the latency measurements collected during the current iteration.
         """
         cls.global_latencies.append(cls.round_latencies)
         return
 
     @classmethod
     def measure(cls, name):
+        """
+        Decorator that measures the execution time of a function and records it
+        under the specified metric name.
+        """
+
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
@@ -76,6 +96,10 @@ class SeqMetrics(Metrics):
 
 
 class ConcurrentMetrics(Metrics):
+    """
+    Collects latency measurements for the parallel benchmark.
+    """
+
     global_latencies = defaultdict(list)
 
     @classmethod
@@ -89,6 +113,11 @@ class ConcurrentMetrics(Metrics):
 
     @classmethod
     def measure(cls, name):
+        """
+        Decorator that measures the execution time of a function and records it
+        under the specified metric name.
+        """
+
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):

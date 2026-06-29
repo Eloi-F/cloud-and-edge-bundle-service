@@ -2,22 +2,13 @@
 Autonomous PiCar-X Client
 =========================
 
-This script controls a PiCar-X robot and coordinates three main tasks:
+This module coordinates the sequential execution of the PiCar-X application.
 
-1. Line following (circulation):
-   - Uses the grayscale sensors to follow a line.
-   - Adjusts steering and motor speed according to the detected line position.
+The circulation task runs in its own thread, while the detection and
+identification services are executed sequentially for a fixed number of cycles.
 
-2. Obstacle detection (detection):
-   - Reads the ultrasonic sensor.
-   - Sends distance information to a remote service.
-   - Receives an updated speed value from the server.
-
-3. Object/person identification:
-   - Sends a picture to the identification server
-   - Receives the picture annotated with the objects detected and a box around them
-
-Additionally, the script requests a route from a remote service, downloads an HTML map, and opens it in a browser.
+Before starting the execution, a route is requested from the navigation service.
+When the benchmark completes, collected latency measurements are saved.
 """
 
 import threading
@@ -31,6 +22,20 @@ from src.common.local.line_following import circulation
 
 
 def run_sequential_logic(cycle: int, scenario: str = "bundle"):
+    """
+    Runs the sequential version of the application.
+
+    Workflow:
+    1. Request a route from the navigation service.
+    2. Start the circulation thread.
+    3. Execute detection and identification sequentially for the specified
+       number of cycles.
+    4. Update latency metrics after each cycle.
+    5. Save latency measurements before exiting.
+
+    :param cycle: Number of sequential execution cycles.
+    :param scenario: Benchmark scenario used when saving latency metrics.
+    """
     line_following_t = threading.Thread(
         target=circulation,
         name="circulation",
@@ -54,5 +59,5 @@ def run_sequential_logic(cycle: int, scenario: str = "bundle"):
 
 
 if __name__ == "__main__":
-    scenario = "full_cloud"
+    scenario = "bundle"
     run_sequential_logic(10, scenario)
