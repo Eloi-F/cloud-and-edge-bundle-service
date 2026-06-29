@@ -54,13 +54,13 @@ def run_threaded_logic(cycle_by_service: dict[str, int], scenario: str = "bundle
 
     thread_det = threading.Thread(
         target=detection,
-        args=(cycle_by_service.get("detection"),),
+        args=(cycle_by_service.get("detection"), True),
         name="detection",
     )
 
     thread_id = threading.Thread(
         target=identification,
-        args=(cycle_by_service.get("identification"),),
+        args=(cycle_by_service.get("identification"), True),
         name="identification",
     )
 
