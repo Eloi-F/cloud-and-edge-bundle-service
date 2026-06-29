@@ -26,7 +26,7 @@ from time import sleep
 
 from picarx import Picarx
 
-from src.common.latency_measurments.metrics import SeqMetrics
+from src.common.latency_measurments.metrics import Metrics, SeqMetrics
 from src.common.local.identification import identification
 from src.common.local.bundle import decision_seq, get_trajectory_planning_seq
 
@@ -209,7 +209,7 @@ def run_sequential_logic(scenario: str = "bundle"):
     except KeyboardInterrupt:
         print("Ctrl+C pressed. Stopping...")
         line_following_t.join()
-        SeqMetrics.save_response_times_to_file(
+        Metrics.save_response_times_to_file(
             scenario, values, "./data/sequential_lat.json"
         )
 

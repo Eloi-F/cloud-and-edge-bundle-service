@@ -32,8 +32,9 @@ from time import sleep
 
 from picarx import Picarx
 
+from src.common.latency_measurments.metrics import ConcurrentMetrics, Metrics
 from src.common.local.identification import identification
-from src.common.local.bundle import decision, get_trajectory_planning
+from src.common.local.bundle import decision_parallel, get_trajectory_planning_parallel
 
 px = Picarx()
 current_state: str | None = None
@@ -96,7 +97,7 @@ def get_status(val_list: list[int]):
         return "stop"
 
 
-def circulation():
+def circulation(cycle: int):
     """
     Main line-following control loop.
 
@@ -112,7 +113,7 @@ def circulation():
     """
     global last_state
     try:
-        while True:
+        for _ in range(cycle):
             # Read line sensors
             gm_val_list = px.get_grayscale_data()
             gm_state = get_status(gm_val_list)
@@ -142,7 +143,7 @@ def circulation():
         px.stop()
 
 
-def detection():
+def detection(cycle: int):
     """
     Obstacle detection and adaptive speed control.
 
@@ -155,14 +156,14 @@ def detection():
     """
     global px_power
 
-    while True:
+    for _ in range(cycle):
         ultrasonic_percept = px.ultrasonic.read()
         gm_val_list = px.get_grayscale_data()
         gm_state = px.get_cliff_status(gm_val_list)
         data = {"front": ultrasonic_percept, "state": gm_state}
 
         # Measure network latency
-        response = decision(payload=data)
+        response = decision_parallel(payload=data)
 
         with lock:
             px_power = response.get("speed", 0)
@@ -184,7 +185,7 @@ def trajectory_planning(start_address: str, destination_address: str):
         "destination_address": destination_address,
     }
 
-    response = get_trajectory_planning(payload=data)
+    response = get_trajectory_planning_parallel(payload=data)
 
     with open("received_map.html", "wb") as f:
         f.write(response)
@@ -193,7 +194,7 @@ def trajectory_planning(start_address: str, destination_address: str):
     webbrowser.open("received_map.html")
 
 
-def run_threaded_logic():
+def run_threaded_logic(run_parameters: dict[str, int], scenario: str = "bundle"):
     """
     Application entry point.
 
@@ -209,16 +210,19 @@ def run_threaded_logic():
 
     thread1 = threading.Thread(
         target=circulation,
+        args=(run_parameters.get("circulation", 100),),
         name="circulation",
     )
 
     thread2 = threading.Thread(
         target=detection,
+        args=(run_parameters.get("detection"),),
         name="detection",
     )
 
     thread3 = threading.Thread(
         target=identification,
+        args=(run_parameters.get("identification"),),
         name="identification",
     )
 
@@ -230,6 +234,10 @@ def run_threaded_logic():
     thread2.join()
     thread3.join()
 
+    Metrics.save_response_times_to_file(scenario, [], "./data/parallel_lat.json")
+
 
 if __name__ == "__main__":
-    run_threaded_logic()
+    scenario = "full_cloud"
+    run_parameters: dict[str, int] = {"detection": 50, "identification": 20}
+    run_threaded_logic(run_parameters, scenario)
