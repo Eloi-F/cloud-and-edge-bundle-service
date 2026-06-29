@@ -1,7 +1,7 @@
 import base64
 import cv2
 
-from bundle import get_identification
+from src.common.local.bundle import get_identification_seq, get_identification_parallel
 
 # Initialize the default camera device
 cap = cv2.VideoCapture(0)
@@ -11,11 +11,13 @@ cap.set(3, 640)
 cap.set(4, 480)
 
 
-def identification():
+def identification(cycle: int = 100, parallel_exec: bool = False):
     """
     Main object-identification loop.
+
+    cycle is unused when parallel_exec is at False
     """
-    while True:
+    for _ in range(cycle):
         # Capture a frame from the camera, encode it as jpeg, and convert it to Base64
         _, img = cap.read()
         _, buffer = cv2.imencode(".jpg", img)
@@ -23,7 +25,10 @@ def identification():
 
         data = {"img": img_base64}
 
-        response = get_identification(payload=data)
+        if parallel_exec:
+            response = get_identification_parallel(payload=data)
+        else:
+            response = get_identification_seq(payload=data)
 
         box = response["box"]
         classId = response["classId"]
@@ -45,3 +50,6 @@ def identification():
         # Display annotated frame
         cv2.imshow("Output", img)
         cv2.waitKey(1)
+
+        if not parallel_exec:
+            return

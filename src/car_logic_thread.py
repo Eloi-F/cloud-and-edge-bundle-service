@@ -27,18 +27,20 @@ The application relies on multiple threads:
 - identification()     : image/object recognition (external module)
 """
 import threading
-import webbrowser
 from time import sleep
 
 from picarx import Picarx
 
-from src.common.latency_measurments.metrics import ConcurrentMetrics, Metrics
-from src.common.local.identification import identification
-from src.common.local.bundle import decision_parallel, get_trajectory_planning_parallel
+from src.common.latency_measurments.metrics import ConcurrentMetrics
+
+from src.common.services.identification import identification
+from src.common.services.detection import detection
+from src.common.services.navigation import trajectory_planning
+
+from src.common.services.detection import px_power
 
 px = Picarx()
 current_state: str | None = None
-px_power: int = 10
 offset: int = 20
 
 # Last valid line-following state
@@ -97,7 +99,7 @@ def get_status(val_list: list[int]):
         return "stop"
 
 
-def circulation(cycle: int):
+def circulation():
     """
     Main line-following control loop.
 
@@ -113,7 +115,7 @@ def circulation(cycle: int):
     """
     global last_state
     try:
-        for _ in range(cycle):
+        while True:
             # Read line sensors
             gm_val_list = px.get_grayscale_data()
             gm_state = get_status(gm_val_list)
@@ -143,58 +145,7 @@ def circulation(cycle: int):
         px.stop()
 
 
-def detection(cycle: int):
-    """
-    Obstacle detection and adaptive speed control.
-
-    Responsibilities
-    ----------------
-    - Read the ultrasonic sensor.
-    - Send distance information to a remote service.
-    - Measure request latency.
-    - Receive and apply a new speed value.
-    """
-    global px_power
-
-    for _ in range(cycle):
-        ultrasonic_percept = px.ultrasonic.read()
-        gm_val_list = px.get_grayscale_data()
-        gm_state = px.get_cliff_status(gm_val_list)
-        data = {"front": ultrasonic_percept, "state": gm_state}
-
-        # Measure network latency
-        response = decision_parallel(payload=data)
-
-        with lock:
-            px_power = response.get("speed", 0)
-
-
-def trajectory_planning(start_address: str, destination_address: str):
-    """
-    Request a route from the remote planning service.
-
-    Responsibilities
-    --------
-    - Sends a start and destination address.
-    - Receives an HTML map.
-    - Saves the map locally.
-    - Opens it in the default browser.
-    """
-    data = {
-        "start_address": start_address,
-        "destination_address": destination_address,
-    }
-
-    response = get_trajectory_planning_parallel(payload=data)
-
-    with open("received_map.html", "wb") as f:
-        f.write(response)
-
-    print("Map saved as received_map.html")
-    webbrowser.open("received_map.html")
-
-
-def run_threaded_logic(run_parameters: dict[str, int], scenario: str = "bundle"):
+def run_threaded_logic(cycle_by_service: dict[str, int], scenario: str = "bundle"):
     """
     Application entry point.
 
@@ -210,19 +161,18 @@ def run_threaded_logic(run_parameters: dict[str, int], scenario: str = "bundle")
 
     thread1 = threading.Thread(
         target=circulation,
-        args=(run_parameters.get("circulation", 100),),
         name="circulation",
     )
 
     thread2 = threading.Thread(
         target=detection,
-        args=(run_parameters.get("detection"),),
+        args=(cycle_by_service.get("detection"),),
         name="detection",
     )
 
     thread3 = threading.Thread(
         target=identification,
-        args=(run_parameters.get("identification"),),
+        args=(cycle_by_service.get("identification"),),
         name="identification",
     )
 
@@ -234,12 +184,12 @@ def run_threaded_logic(run_parameters: dict[str, int], scenario: str = "bundle")
     thread2.join()
     thread3.join()
 
-    Metrics.save_response_times_to_file(
+    ConcurrentMetrics.save_response_times_to_file(
         scenario, ConcurrentMetrics.get_latencies(), "./data/parallel_lat.json"
     )
 
 
 if __name__ == "__main__":
     scenario = "full_cloud"
-    run_parameters: dict[str, int] = {"detection": 50, "identification": 20}
-    run_threaded_logic(run_parameters, scenario)
+    cycle_by_service = {"detection": 50, "identification": 20}
+    run_threaded_logic(cycle_by_service, scenario)

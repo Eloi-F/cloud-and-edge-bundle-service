@@ -21,18 +21,20 @@ Additionally, the script requests a route from a remote service, downloads an HT
 """
 
 import threading
-import webbrowser
 from time import sleep
 
 from picarx import Picarx
 
-from src.common.latency_measurments.metrics import Metrics, SeqMetrics
-from src.common.local.identification import identification
-from src.common.local.bundle import decision_seq, get_trajectory_planning_seq
+from src.common.latency_measurments.metrics import SeqMetrics
+
+from src.common.services.identification import identification
+from src.common.services.detection import detection
+from src.common.services.navigation import trajectory_planning
+
+from src.common.services.detection import px_power
 
 px = Picarx()
 current_state: str | None = None
-px_power: int = 10
 offset: int = 20
 
 # Last valid line-following state
@@ -137,57 +139,6 @@ def circulation():
         px.stop()
 
 
-def detection():
-    """
-    Obstacle detection and adaptive speed control.
-
-    Responsibilities
-    ----------------
-    - Read the ultrasonic sensor.
-    - Send distance information to a remote service.
-    - Measure request latency.
-    - Receive and apply a new speed value.
-    """
-    global px_power
-
-    while True:
-        ultrasonic_percept = px.ultrasonic.read()
-        gm_val_list = px.get_grayscale_data()
-        gm_state = px.get_cliff_status(gm_val_list)
-        data = {"front": ultrasonic_percept, "state": gm_state}
-
-        # Measure network latency
-        response = decision_seq(payload=data)
-
-        with lock:
-            px_power = response.get("speed", 0)
-
-
-def trajectory_planning(start_address: str, destination_address: str):
-    """
-    Request a route from the remote planning service.
-
-    Responsibilities
-    --------
-    - Sends a start and destination address.
-    - Receives an HTML map.
-    - Saves the map locally.
-    - Opens it in the default browser.
-    """
-    data = {
-        "start_address": start_address,
-        "destination_address": destination_address,
-    }
-
-    response = get_trajectory_planning_seq(payload=data)
-
-    with open("received_map.html", "wb") as f:
-        f.write(response)
-
-    print("Map saved as received_map.html")
-    webbrowser.open("received_map.html")
-
-
 def run_sequential_logic(cycle: int, scenario: str = "bundle"):
     line_following_t = threading.Thread(
         target=circulation,
@@ -195,10 +146,6 @@ def run_sequential_logic(cycle: int, scenario: str = "bundle"):
     )
     try:
         trajectory_planning("Tripode A", "7 avenue colonel roche")
-        line_following_t = threading.Thread(
-            target=circulation,
-            name="circulation",
-        )
         line_following_t.start()
         for _ in range(cycle):
             detection()
@@ -208,7 +155,7 @@ def run_sequential_logic(cycle: int, scenario: str = "bundle"):
     except KeyboardInterrupt:
         print("Ctrl+C pressed. Stopping...")
         line_following_t.join()
-        Metrics.save_response_times_to_file(
+        SeqMetrics.save_response_times_to_file(
             scenario, SeqMetrics.get_latencies(), "./data/sequential_lat.json"
         )
 
