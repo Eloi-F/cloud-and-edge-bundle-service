@@ -1,23 +1,16 @@
 from time import sleep
-
 from picarx import Picarx
 
 from src.common.services.detection import px_power
 
+OFFSET: int = 20
 px = Picarx()
-offset: int = 20
-
-# Last valid line-following state
-# Used when the line is temporarily lost
-last_state: str = "stop"
 
 
-def _outHandle():
+def _outHandle(last_state: str):
     """
     Recovery procedure executed when the line is lost.
     """
-    global last_state, current_state
-
     if last_state == "left":
         px.set_dir_servo_angle(-30)
         px.backward(10)
@@ -30,10 +23,8 @@ def _outHandle():
         gm_val_list = px.get_grayscale_data()
         gm_state = _get_status(gm_val_list)
 
-        currentSta = gm_state
-
         # Exit recovery mode once the sensor state changes
-        if currentSta != last_state:
+        if gm_state != last_state:
             break
 
         sleep(0.001)
@@ -76,33 +67,32 @@ def circulation():
 
     Runs continuously until the program exits.
     """
-    global last_state
+    # Last valid line-following state
+    # Used when the line is temporarily lost
+    last_state: str = ""
+
     try:
         while True:
             # Read line sensors
             gm_val_list = px.get_grayscale_data()
-            gm_state = _get_status(gm_val_list)
-
-            # Keep track of the most recent valid direction
-            if gm_state != "stop":
-                last_state = gm_state
+            last_state = _get_status(gm_val_list)
 
             # Steering logic
-            if gm_state == "forward":
+            if last_state == "forward":
                 px.set_dir_servo_angle(0)
                 px.forward(px_power)
 
-            elif gm_state == "left":
-                px.set_dir_servo_angle(offset)
+            elif last_state == "left":
+                px.set_dir_servo_angle(OFFSET)
                 px.forward(px_power)
 
-            elif gm_state == "right":
-                px.set_dir_servo_angle(-offset)
+            elif last_state == "right":
+                px.set_dir_servo_angle(-OFFSET)
                 px.forward(px_power)
 
             else:
                 # Attempt to recover the line
-                _outHandle()
+                _outHandle(last_state)
 
     finally:
         px.stop()
