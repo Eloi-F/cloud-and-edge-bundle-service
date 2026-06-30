@@ -7,7 +7,7 @@ OFFSET: int = 20
 px = Picarx()
 
 
-def _outHandle(last_state: str):
+def _recover_line(last_state: str):
     """
     Attempts to recover the line when it is no longer detected.
 
@@ -22,6 +22,9 @@ def _outHandle(last_state: str):
 
     elif last_state == "right":
         px.set_dir_servo_angle(30)
+        px.backward(10)
+
+    elif last_state == "forward":
         px.backward(10)
 
     while True:
@@ -75,30 +78,32 @@ def circulation():
 
     # Last valid line-following state
     # Used when the line is temporarily lost
-    last_state: str = ""
+    last_state: str = "forward"
 
     try:
         while True:
             # Read line sensors
             gm_val_list = px.get_grayscale_data()
-            last_state = _get_status(gm_val_list)
+            current_state = _get_status(gm_val_list)
 
-            # Steering logic
-            if last_state == "forward":
-                px.set_dir_servo_angle(0)
-                px.forward(detection.px_power)
-
-            elif last_state == "left":
-                px.set_dir_servo_angle(OFFSET)
-                px.forward(detection.px_power)
-
-            elif last_state == "right":
-                px.set_dir_servo_angle(-OFFSET)
-                px.forward(detection.px_power)
-
-            else:
+            if current_state == "stop":
                 # Attempt to recover the line
-                _outHandle(last_state)
+                _recover_line(last_state)
+            else:
+                last_state = current_state
+
+                # Steering logic
+                if current_state == "forward":
+                    px.set_dir_servo_angle(0)
+                    px.forward(detection.px_power)
+
+                elif current_state == "left":
+                    px.set_dir_servo_angle(OFFSET)
+                    px.forward(detection.px_power)
+
+                elif current_state == "right":
+                    px.set_dir_servo_angle(-OFFSET)
+                    px.forward(detection.px_power)
 
     finally:
         px.stop()
