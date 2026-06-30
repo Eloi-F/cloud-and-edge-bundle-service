@@ -4,14 +4,46 @@ from functools import wraps
 import json
 import os
 import threading
+from abc import ABC, abstractmethod
 
 lock = threading.Lock()
 
 
-class Metrics:
+class Metrics(ABC):
     """
     Base class providing utilities for storing latency measurements.
     """
+
+    @abstractmethod
+    @classmethod
+    def add_value(cls, name: str, value: float):
+        """Records a latency measurement under the specified metric name."""
+        pass
+
+    @classmethod
+    def measure(cls, name):
+        """
+        Decorator that measures the execution time of a function and records it
+        under the specified metric name.
+        """
+
+        def decorator(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                start = perf_counter()
+
+                try:
+                    return func(*args, **kwargs)
+
+                finally:
+                    cls.add_value(
+                        name,
+                        (perf_counter() - start) * 1000,
+                    )
+
+            return wrapper
+
+        return decorator
 
     @classmethod
     def save_response_times_to_file(
@@ -59,40 +91,16 @@ class SeqMetrics(Metrics):
 
     @classmethod
     def get_latencies(cls) -> list:
-        return cls.global_latencies
+        """Returns all recorded latency measurements."""
+        return list(cls.global_latencies)
 
     @classmethod
     def update_round_latencies(cls):
         """
         Stores the latency measurements collected during the current iteration.
         """
-        cls.global_latencies.append(cls.round_latencies)
+        cls.global_latencies.append(dict(cls.round_latencies))
         return
-
-    @classmethod
-    def measure(cls, name):
-        """
-        Decorator that measures the execution time of a function and records it
-        under the specified metric name.
-        """
-
-        def decorator(func):
-            @wraps(func)
-            def wrapper(*args, **kwargs):
-                start = perf_counter()
-
-                try:
-                    return func(*args, **kwargs)
-
-                finally:
-                    cls.add_value(
-                        name,
-                        (perf_counter() - start) * 1000,
-                    )
-
-            return wrapper
-
-        return decorator
 
 
 class ConcurrentMetrics(Metrics):
@@ -109,29 +117,5 @@ class ConcurrentMetrics(Metrics):
 
     @classmethod
     def get_latencies(cls) -> dict:
-        return cls.global_latencies
-
-    @classmethod
-    def measure(cls, name):
-        """
-        Decorator that measures the execution time of a function and records it
-        under the specified metric name.
-        """
-
-        def decorator(func):
-            @wraps(func)
-            def wrapper(*args, **kwargs):
-                start = perf_counter()
-
-                try:
-                    return func(*args, **kwargs)
-
-                finally:
-                    cls.add_value(
-                        name,
-                        (perf_counter() - start) * 1000,
-                    )
-
-            return wrapper
-
-        return decorator
+        """Returns all recorded latency measurements."""
+        return dict(cls.global_latencies)
