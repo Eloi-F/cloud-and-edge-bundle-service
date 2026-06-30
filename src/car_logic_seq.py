@@ -21,7 +21,7 @@ from src.common.services.navigation import trajectory_planning
 from src.common.local.line_following import circulation
 
 
-def run_sequential_logic(cycle: int, scenario: str = "bundle"):
+def run_sequential_logic(cycle: int, scenario: str):
     """
     Runs the sequential version of the application.
 
@@ -56,8 +56,3 @@ def run_sequential_logic(cycle: int, scenario: str = "bundle"):
         SeqMetrics.save_response_times_to_file(
             scenario, SeqMetrics.get_latencies(), "./data/sequential_lat.json"
         )
-
-
-if __name__ == "__main__":
-    scenario = "bundle"
-    run_sequential_logic(10, scenario)

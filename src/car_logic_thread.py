@@ -23,7 +23,7 @@ from src.common.services.navigation import trajectory_planning
 from src.common.local.line_following import circulation
 
 
-def run_threaded_logic(cycle_by_service: dict[str, int], scenario: str = "bundle"):
+def run_threaded_logic(cycle_by_service: dict[str, int], scenario: str):
     """
     Runs the multithreaded version of the application.
 
@@ -75,9 +75,3 @@ def run_threaded_logic(cycle_by_service: dict[str, int], scenario: str = "bundle
         ConcurrentMetrics.save_response_times_to_file(
             scenario, ConcurrentMetrics.get_latencies(), "./data/parallel_lat.json"
         )
-
-
-if __name__ == "__main__":
-    scenario = "bundle"
-    cycle_by_service = {"detection": 50, "identification": 20}
-    run_threaded_logic(cycle_by_service, scenario)

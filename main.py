@@ -4,9 +4,31 @@ from src.car_logic_seq import run_sequential_logic
 from src.car_logic_thread import run_threaded_logic
 
 
-def load_run_conf(file_path: str = "run_config.yaml"):
-    with open(file_path, "r") as f:
+def validate_config(conf: dict):
+    try:
+        seq = conf["sequential"]
+        conc = conf["concurrent"]
+
+        seq["cycle"]
+        seq["scenario"]
+
+        cycle_by_service = conc["cycle_by_service"]
+        cycle_by_service["detection"]
+        cycle_by_service["identification"]
+        conc["scenario"]
+
+    except KeyError as e:
+        raise RuntimeError(f"Missing configuration key: {e}") from e
+
+
+def load_run_conf(file_path: str = "run_config.yaml") -> dict:
+    with open(file_path, "r", encoding="utf-8") as f:
         conf = yaml.safe_load(f)
+
+    if not isinstance(conf, dict):
+        raise RuntimeError("The running config could not be loaded.")
+
+    validate_config(conf)
     return conf
 
 
