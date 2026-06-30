@@ -1,7 +1,7 @@
 from time import sleep
 from picarx import Picarx
 
-from src.common.services.detection import px_power
+import src.common.services.detection as detection
 
 OFFSET: int = 20
 px = Picarx()
@@ -86,15 +86,15 @@ def circulation():
             # Steering logic
             if last_state == "forward":
                 px.set_dir_servo_angle(0)
-                px.forward(px_power)
+                px.forward(detection.px_power)
 
             elif last_state == "left":
                 px.set_dir_servo_angle(OFFSET)
-                px.forward(px_power)
+                px.forward(detection.px_power)
 
             elif last_state == "right":
                 px.set_dir_servo_angle(-OFFSET)
-                px.forward(px_power)
+                px.forward(detection.px_power)
 
             else:
                 # Attempt to recover the line
