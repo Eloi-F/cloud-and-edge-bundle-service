@@ -1,28 +1,14 @@
 from fastapi import FastAPI, Request
 import uvicorn
-from identification import identification
 from trajectory import trajectory
 from fastapi.responses import FileResponse
 
 app = FastAPI()
 
 
-# identification capacity
-@app.post("/identification")
-async def read_root(request: Request):
-    """
-    Function called on POST request to identification endpoint.
-    Call identification service on received image.
-    Send back array of detected objects to the client.
-    """
-    data = await request.json()
-    response = identification(data)
-    return response
-
-
 # trajectory planning capacity
 @app.post("/trajectory_planning")
-async def read_root(request: Request):
+async def navigation_endpoint(request: Request):
     """
     Function called on POST request to trajectory_planning endpoint.
     Call trajectory service on given start and destination addresses.
