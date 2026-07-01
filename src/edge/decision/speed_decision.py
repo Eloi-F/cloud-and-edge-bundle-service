@@ -1,10 +1,11 @@
-def speed_decision(dist, cliff_state):
+def speed_decision(dist: float, cliff_state: bool):
     """
     Returns speed percentage to adopt, based on linear
     formula.
-    :param dist: distance to object
-    :param cliff_state: boolean telling if there's a cliff ahead
-    :return int: speed percentage to adopt
+
+    :param dist: Distance to the obstacle
+    :param cliff_state: True if a cliff is detected ahead, otherwise False
+    :return float: Speed percentage to apply
     """
     if cliff_state or dist <= 10:
         return 0
