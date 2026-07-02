@@ -12,26 +12,17 @@ an image.
 import base64
 import numpy as np
 import cv2
+import os
+from ultralytics import YOLO
 
-# Initializing classNames values
-classFile = "coco.names"  # Common Objects in Context dataset
-with open(classFile, "rt") as f:
-    classNames = f.read().rstrip("\n").split("\n")
+MODEL_PATH = os.getenv("YOLO_MODEL_PATH", "./yolo26x.pt")
 
-# Build and configure model (SSD Mobilenet V3)
-configPath = "ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt"
-weightsPath = "frozen_inference_graph.pb"
-net = cv2.dnn_DetectionModel(weightsPath, configPath)
-
-net.setInputSize(320, 320)
-net.setInputScale(1.0 / 127.5)
-net.setInputMean((127.5, 127.5, 127.5))  # Normalizing pixel values
-net.setInputSwapRB(True)  # OpenCV uses BGR by default
+model = YOLO(MODEL_PATH)
 
 
 def identification(img_base64):
     """
-    Detect objects on camera flow using cv2.
+    Detect objects on camera flow using YOLO.
     :param img_base64: camera feed
     :return: array of detected objects
     """
@@ -47,25 +38,29 @@ def identification(img_base64):
         print(f"Image decoding error: {e}")
         return []
 
-    # Detect objects on image
-    # classIds contains detected classes (0 or 1)
-    # confs contains the associated confidence score for each class
-    # bbox contains the part of the image for each detected object
-    classIds, confs, bbox = net.detect(img, confThreshold=0.6)
+    results = model(source=img)
 
-    # return array with all detected objects
     detections = []
-    for classId, conf, box in zip(classIds.flatten(), confs.flatten(), bbox):
-        detections.append(
-            {
-                "classId": classNames[classId - 1],
-                "confidence": round(float(conf), 3),
-                "box": {
-                    "x": int(box[0]),
-                    "y": int(box[1]),
-                    "width": int(box[2]),
-                    "height": int(box[3]),
-                },
-            }
-        )
+    for result in results:
+        boxes = result.boxes.xyxy.cpu().numpy()
+        class_ids = result.boxes.cls.cpu().numpy().astype(int)
+        confs = result.boxes.conf.cpu().numpy()
+
+        names = result.names
+
+        for box, class_id, conf in zip(boxes, class_ids, confs):
+            x1, y1, x2, y2 = box
+
+            detections.append(
+                {
+                    "classId": names[class_id],
+                    "confidence": round(float(conf), 3),
+                    "box": {
+                        "x": int(x1),
+                        "y": int(y1),
+                        "width": int(x2 - x1),
+                        "height": int(y2 - y1),
+                    },
+                }
+            )
     return detections

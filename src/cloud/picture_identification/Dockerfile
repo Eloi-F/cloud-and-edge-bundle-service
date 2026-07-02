@@ -8,8 +8,5 @@ RUN pip install -r requirements.txt
 
 COPY main.py .
 COPY identification.py .
-COPY coco.names .
-COPY frozen_inference_graph.pb .
-COPY ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt .
 
 CMD ["python", "main.py"]

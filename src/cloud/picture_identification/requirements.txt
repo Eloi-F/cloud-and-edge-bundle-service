@@ -1,8 +1,4 @@
 fastapi
 uvicorn
 numpy
-opencv-python-headless
-googlemaps
-datetime
-folium
-polyline
+ultralytics-opencv-headless
