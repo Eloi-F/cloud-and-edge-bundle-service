@@ -38,22 +38,26 @@ def identification(cycle: int = 100, parallel_exec: bool = False):
         else:
             response = get_identification_seq(payload=data)
 
-        box = response["box"]
-        classId = response["classId"]
+        for element in response:
+            box_dict = element["box"]
 
-        # Draw bounding box around detected object
-        cv2.rectangle(img, box, color=(0, 255, 0), thickness=2)
+            pt1 = (box_dict["x"], box_dict["y"])
+            pt2 = (
+                box_dict["x"] + box_dict["width"],
+                box_dict["y"] + box_dict["height"],
+            )
 
-        # Display detected class label
-        cv2.putText(
-            img,
-            classId,
-            (box[0] + 10, box[1] + 30),
-            cv2.FONT_HERSHEY_COMPLEX,
-            1,
-            (0, 255, 0),
-            1,
-        )
+            cv2.rectangle(img, pt1, pt2, color=(0, 255, 0), thickness=2)
+
+            cv2.putText(
+                img,
+                str(element["classId"]),
+                (pt1[0] + 10, pt1[1] + 30),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 255, 0),
+                1,
+            )
 
         # Display annotated frame
         cv2.imshow("Output", img)

@@ -14,7 +14,7 @@ async def identification_endpoint(request: Request):
     Send back array of detected objects to the client.
     """
     data = await request.json()
-    response = identification(data)
+    response = identification(data.get("img"))
     return response
 
 
