@@ -1,4 +1,5 @@
 import base64
+import threading
 import cv2
 
 from src.common.local.bundle import get_identification_seq, get_identification_parallel
@@ -11,7 +12,11 @@ cap.set(3, 640)
 cap.set(4, 480)
 
 
-def identification(cycle: int = 100, parallel_exec: bool = False):
+def identification(
+    stop_event: threading.Event,
+    cycle: int = 100,
+    parallel_exec: bool = False,
+):
     """
     Captures camera frames and sends them to the identification service.
 
@@ -26,6 +31,9 @@ def identification(cycle: int = 100, parallel_exec: bool = False):
     :param parallel_exec: Selects the parallel or sequential endpoint.
     """
     for _ in range(cycle):
+        if stop_event.is_set():
+            break
+
         # Capture a frame from the camera, encode it as jpeg, and convert it to Base64
         _, img = cap.read()
         _, buffer = cv2.imencode(".jpg", img)

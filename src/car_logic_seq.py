@@ -36,20 +36,23 @@ def run_sequential_logic(cycle: int, scenario: str):
     :param cycle: Number of sequential execution cycles.
     :param scenario: Benchmark scenario used when saving latency metrics.
     """
+    stop_event = threading.Event()
     line_following_t = threading.Thread(
         target=circulation,
+        args=(stop_event,),
         name="circulation",
     )
     try:
         trajectory_planning("Tripode A", "7 avenue colonel roche")
         line_following_t.start()
         for _ in range(cycle):
-            detection()
-            identification()
+            detection(stop_event)
+            identification(stop_event)
             SeqMetrics.update_round_latencies()
 
     except KeyboardInterrupt:
         print("Ctrl+C pressed. Stopping...")
+        stop_event.set()
         line_following_t.join()
 
     finally:

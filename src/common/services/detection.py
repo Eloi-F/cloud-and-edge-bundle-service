@@ -10,7 +10,11 @@ px_power: int = 10
 lock = threading.Lock()
 
 
-def detection(cycle: int = 100, parallel_exec: bool = False):
+def detection(
+    stop_event: threading.Event,
+    cycle: int = 100,
+    parallel_exec: bool = False,
+):
     """
     Performs obstacle detection and updates the robot speed.
 
@@ -27,6 +31,8 @@ def detection(cycle: int = 100, parallel_exec: bool = False):
     global px_power
 
     for _ in range(cycle):
+        if stop_event.is_set():
+            break
         ultrasonic_percept = px.ultrasonic.read()
         gm_val_list = px.get_grayscale_data()
         gm_state = px.get_cliff_status(gm_val_list)

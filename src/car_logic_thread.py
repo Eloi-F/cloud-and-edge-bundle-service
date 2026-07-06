@@ -37,20 +37,22 @@ def run_threaded_logic(cycle_by_service: dict[str, int], scenario: str):
     :param cycle_by_service: Execution cycle for each service.
     :param scenario: Benchmark scenario used when saving latency metrics.
     """
+    stop_event = threading.Event()
     thread_circ = threading.Thread(
         target=circulation,
+        args=(stop_event,),
         name="circulation",
     )
 
     thread_det = threading.Thread(
         target=detection,
-        args=(cycle_by_service.get("detection"), True),
+        args=(stop_event, cycle_by_service.get("detection"), True),
         name="detection",
     )
 
     thread_id = threading.Thread(
         target=identification,
-        args=(cycle_by_service.get("identification"), True),
+        args=(stop_event, cycle_by_service.get("identification"), True),
         name="identification",
     )
 
@@ -67,6 +69,7 @@ def run_threaded_logic(cycle_by_service: dict[str, int], scenario: str):
 
     except KeyboardInterrupt:
         print("Ctrl+C pressed. Stopping...")
+        stop_event.set()
         thread_circ.join()
         thread_det.join()
         thread_id.join()

@@ -1,3 +1,4 @@
+import threading
 from time import sleep
 from picarx import Picarx
 
@@ -65,7 +66,7 @@ def _get_status(val_list: list[int]):
         return "stop"
 
 
-def circulation():
+def circulation(stop_event: threading.Event):
     """
     Continuously performs line following.
 
@@ -81,7 +82,7 @@ def circulation():
     last_state: str = "forward"
 
     try:
-        while True:
+        while not stop_event.is_set():
             # Read line sensors
             gm_val_list = px.get_grayscale_data()
             current_state = _get_status(gm_val_list)
