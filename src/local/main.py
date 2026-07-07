@@ -1,3 +1,5 @@
+import os
+
 import yaml
 
 from logic.sequential import run_sequential_logic
@@ -39,7 +41,7 @@ def main():
     The user selects either the sequential or multithreaded execution mode.
     Each mode runs the benchmark with predefined parameters.
     """
-    conf = load_run_conf()
+    conf = load_run_conf(os.getenv("CONFIG_PATH", "run_config.yaml"))
     print("--- Benchmark Tool ---")
     print("1. Sequential Version")
     print("2. Multithreaded Version")

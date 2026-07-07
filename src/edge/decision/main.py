@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 import uvicorn
 from speed_decision import speed_decision
@@ -31,4 +33,6 @@ def read_root(data: dict):
 
 if __name__ == "__main__":
     # API's webserver
-    uvicorn.run("main:app", host="0.0.0.0", port=8002, reload=True)
+    uvicorn.run(
+        "main:app", host="0.0.0.0", port=int(os.getenv("PORT", 8002)), reload=True
+    )

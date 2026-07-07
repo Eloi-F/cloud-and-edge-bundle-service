@@ -7,18 +7,16 @@ path determination.
 
 It also set the Google API key using environment variable.
 """
+import os
 
 import googlemaps
 from datetime import datetime
 import folium
 import polyline
-import os
 
 api_key = os.environ.get("GOOGLE_MAPS_API_KEY")
 if not api_key:
-    raise EnvironmentError(
-        "GOOGLE_MAPS_API_KEY environment variable is not set"
-    )
+    raise EnvironmentError("GOOGLE_MAPS_API_KEY environment variable is not set")
 gmaps = googlemaps.Client(key=api_key)
 
 
@@ -48,12 +46,9 @@ def trajectory(start_address, destination_address):
     route_coordinates = list(zip(latitudes, longitudes))
 
     # Drawing Folium Map
-    folium.PolyLine(
-        route_coordinates,
-        color="blue",
-        weight=5,
-        opacity=0.7
-    ).add_to(folium_map)
+    folium.PolyLine(route_coordinates, color="blue", weight=5, opacity=0.7).add_to(
+        folium_map
+    )
     folium.Marker(
         location=[latitudes[0], longitudes[0]],
         popup="Départ",

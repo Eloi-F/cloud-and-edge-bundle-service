@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, Request
 import uvicorn
 from identification import identification
@@ -20,4 +22,6 @@ async def identification_endpoint(request: Request):
 
 if __name__ == "__main__":
     # API's cloud Webserver
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        "main:app", host="0.0.0.0", port=int(os.getenv("PORT", 8000)), reload=True
+    )
