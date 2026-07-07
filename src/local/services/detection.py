@@ -2,7 +2,7 @@ import threading
 
 from picarx import Picarx
 
-from src.common.local.bundle import decision_parallel, decision_seq
+from core.bundle import decision_parallel, decision_seq
 
 px = Picarx()
 px_power: int = 10

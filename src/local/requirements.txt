@@ -1,6 +1,3 @@
-fastapi
-uvicorn
-numpy
-webbrowser
 requests
-opencv-python
+opencv-python-headless
+pyyaml

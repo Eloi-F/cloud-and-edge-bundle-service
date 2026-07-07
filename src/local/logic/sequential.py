@@ -13,12 +13,12 @@ When the benchmark completes, collected latency measurements are saved.
 
 import threading
 
-from src.common.latency_measurments.metrics import SeqMetrics
+from latency_measurements.metrics import SeqMetrics
 
-from src.common.services.identification import identification
-from src.common.services.detection import detection
-from src.common.services.navigation import trajectory_planning
-from src.common.local.line_following import circulation
+from services.identification import identification
+from services.detection import detection
+from services.navigation import trajectory_planning
+from core.line_following import circulation
 
 
 def run_sequential_logic(cycle: int, scenario: str):

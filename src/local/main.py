@@ -1,7 +1,7 @@
 import yaml
 
-from src.car_logic_seq import run_sequential_logic
-from src.car_logic_thread import run_threaded_logic
+from logic.sequential import run_sequential_logic
+from logic.threaded import run_threaded_logic
 
 
 def validate_config(conf: dict):

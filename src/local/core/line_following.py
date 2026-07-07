@@ -2,7 +2,7 @@ import threading
 from time import sleep
 from picarx import Picarx
 
-import src.common.services.detection as detection
+import services.detection as detection
 
 OFFSET: int = 20
 px = Picarx()

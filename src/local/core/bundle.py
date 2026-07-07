@@ -15,7 +15,7 @@ measured independently during benchmarking.
 """
 import requests
 from config import BundleConfig
-from src.common.latency_measurments.metrics import SeqMetrics, ConcurrentMetrics
+from latency_measurements.metrics import SeqMetrics, ConcurrentMetrics
 
 config = BundleConfig()
 

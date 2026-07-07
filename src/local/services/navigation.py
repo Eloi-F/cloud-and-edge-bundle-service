@@ -1,6 +1,6 @@
 import webbrowser
 
-from src.common.local.bundle import get_trajectory_planning
+from core.bundle import get_trajectory_planning
 
 
 def trajectory_planning(start_address: str, destination_address: str):

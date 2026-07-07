@@ -2,7 +2,7 @@ import base64
 import threading
 import cv2
 
-from src.common.local.bundle import get_identification_seq, get_identification_parallel
+from core.bundle import get_identification_seq, get_identification_parallel
 
 # Initialize the default camera device
 cap = cv2.VideoCapture(0)
