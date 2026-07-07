@@ -1,16 +1,13 @@
 FROM python:3.14-slim
 
-WORKDIR /decision
+WORKDIR /navigation
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-COPY requirements.txt .
+COPY src/cloud/navigation/ .
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
-
-COPY main.py .
-COPY speed_decision.py .
 
 CMD ["python", "main.py"]
