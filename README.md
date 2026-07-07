@@ -1,69 +1,45 @@
 # Cloud and Edge Bundle Service
 
 ## Overview
-This repository contains a service for managing bundles in cloud and edge environments, including components for cloud integration, edge deployment, and metrics collection.
+
+This repository contains a distributed architecture for managing bundle processing across local, edge, and cloud environments.
+
+The system is composed of:
+
+* a local client application running on the vehicle;
+* edge services responsible for processing close to the data source;
+* multiple cloud services providing higher-level processing and capabilities.
+
+Each component can be deployed independently using Docker.
 
 ## Project Structure
-- **bundle/**: Core bundle management logic.
-- **cloud/**: Cloud integration and deployment components and capacities running in the cloud plateforme.
-- **edge/**: Edge integration and deployment components and capacities running in the edge plateforme.
-- **latency calcul/**: Metrics collection and latency calcul.
-- **main.py**: Main script to run the service.
-- **requirements.txt**: List of dependencies.
 
-## Installation bundle service
+* **`src/local/`**: Contains the vehicle client application responsible for local processing and communication with edge and cloud services.
+* **`src/edge/`**: Contains the edge platform components and services.
+* **`src/cloud/`**: Contains the different cloud services and their related components.
+* **`docker/`**: Contains the Dockerfiles used to build the different service images.
+
+## Installation
+
+### Build Docker Images
+
 1. Clone the repository:
-    ```sh
-    git clone https://github.com/mpezongo/cloud-and-edge-bundle-service.git
-    ```
-2. Navigate to the project directory:
-    ```sh
-    cd cloud-and-edge-bundle-service
-    ```
-3. Install the required dependencies:
-    ```sh
-    pip install -r requirements.txt
-    ```
 
-## Installation cloud configurations
-1. Copy the cloud/ doc to your cloud server
-2. Navigate to the projetc
-   ```sh
-   cd cloud/
-   ```
-3. Run the code with dockerfile
-   ```sh
-   chmod +x run.sh
-   ./run.sh
-   ```
-
-## Installation edge configurations
-1. Copy the edge/ doc to your edge server
-2. Navigate to the projetc
-   ```sh
-   cd edge/
-   ```
-3. Run the code with dockerfile
-   ```sh
-   chmod +x run.sh
-   ./run.sh
-   ```
-## Run bundle service
-To run the main service:
 ```sh
-python main.py
+git clone https://github.com/Eloi-F/cloud-and-edge-bundle-service.git
 ```
 
-## Picar-x code usage
-1. Copy the picar-x-code in the raspberry pi-4 on the picar-x car
-2. Navigate to the project
-  ```sh
-  cd picar-x-code
-  ```
-3. Install requirements
-   ```sh
-   pip install -r requirements.txt
-3. Run
-   ```sh
-   python main.py
-   ```
+2. Build the required containers from the repository root:
+
+```sh
+docker build -f docker/decision.Dockerfile -t decision .
+docker build -f docker/identification.Dockerfile -t identification .
+docker build -f docker/navigation.Dockerfile -t navigation .
+docker build -f docker/local.Dockerfile -t local .
+```
+
+## Configuration
+
+Each service has its own configuration requirements.
+
+For more information about installation, configuration, and usage, refer to the `README.md` file located in the corresponding service directory.
