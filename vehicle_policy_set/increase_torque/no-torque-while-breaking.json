@@ -1,0 +1,20 @@
+{
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@type": "Set",
+    "uid": "policy:no-torque-while-breaking",
+    "prohibition":
+    [
+        {
+            "target": "urn:vehicle:requested-torque",
+            "action": "increase",
+            "constraint":
+            [
+                {
+                    "leftOperand": "urn:vehicle:brake-value",
+                    "operator": "neq",
+                    "rightOperand": "0"
+                }
+            ]
+        }
+    ]
+}

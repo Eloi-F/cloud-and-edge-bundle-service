@@ -1,0 +1,18 @@
+{
+  "@context": "http://www.w3.org/ns/odrl.jsonld",
+  "@type": "Set",
+  "uid": "policy:no-left-blinker-with-hazard-lights",
+  "prohibition": [
+    {
+      "target": "urn:vehicle:left-blinker",
+      "action": "activate",
+      "constraint": [
+        {
+          "leftOperand": "urn:vehicle:hazard-lights-state",
+          "operator": "eq",
+          "rightOperand": true
+        }
+      ]
+    }
+  ]
+}

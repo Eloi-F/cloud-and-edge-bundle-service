@@ -1,0 +1,32 @@
+{
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@type": "Set",
+    "uid": "policy:no-torque-when-obstacle-detected",
+    "prohibition":
+    [
+        {
+            "target": "urn:vehicle:requested-torque",
+            "action": "increase",
+            "constraint":
+            [
+                {
+                    "leftOperand": "urn:vehicle:front-sensor-distance",
+                    "operator": "lt",
+                    "rightOperand": 15
+                },
+                {
+                    "leftOperand": "urn:vehicle:rear-sensor-distance",
+                    "operator": "lt",
+                    "rightOperand": 15
+                }
+            ],
+            "remedy":
+            [
+                {
+                    "target": "urn:vehicle:requested-torque",
+                    "action": "decrease"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,25 @@
+{
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@type": "Set",
+    "uid": "policy:no-torque-violating-speed-limits",
+    "prohibition":
+    [
+        {
+            "target": "urn:vehicle:requested-torque",
+            "action": "increase",
+            "constraint":
+            [
+                {
+                    "leftOperand": "urn:vehicle:requested-torque-valid-for-current-speed",
+                    "operator": "eq",
+                    "rightOperand": false
+                }, // Or
+                {
+                    "leftOperand": "urn:vehicle:current-speed",
+                    "operator": "gteq",
+                    "rightOperandReference": "urn:function:max-authorized-speed"
+                }
+            ]
+        }
+    ]
+}

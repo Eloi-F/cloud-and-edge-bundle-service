@@ -1,0 +1,20 @@
+{
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@type": "Set",
+    "uid": "policy:no-simultaneous-left-right-blinkers",
+    "prohibition":
+    [
+        {
+            "target": "urn:vehicle:left-blinker",
+            "action": "activate",
+            "constraint":
+            [
+                {
+                    "leftOperand": "urn:vehicle:right-blinker-state",
+                    "operator": "eq",
+                    "rightOperand": true
+                }
+            ]
+        }
+    ]
+}
