@@ -1,0 +1,2 @@
+The hazard lights must be activated if there is a vehicle fault.
+The hazard lights shall be activated if the vehicle is moving significantly below the expected traffic speed due to a vehicle limitation.
