@@ -14,7 +14,7 @@ Sequential and parallel variants are provided for services whose latency is
 measured independently during benchmarking.
 """
 import requests
-from config import BundleConfig
+from core.config import BundleConfig
 from latency_measurements.metrics import SeqMetrics, ConcurrentMetrics
 
 config = BundleConfig()
