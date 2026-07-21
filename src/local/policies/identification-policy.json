@@ -1,0 +1,25 @@
+{
+    "@context":"./odrl-vocabulary.md",
+    "@type":"Set",
+    "uid":"urn:policy-id:services:identification",
+    "duty": {
+        "assignee":"urn:services:identification",
+        "target":"urn:host:cloud",
+        "action":"urn:actions:associate-service-host",
+        "comment":"identification service must be in the cloud",
+        "constraint": [
+            {
+            "leftOperand":"urn:constraint:latency",
+            "operator":"lt",
+            "rightOperand":"30",
+            "comment":"QoS: maximum delay of 30ms."
+            },
+            {
+            "leftOperand":"urn:constraint:encryption",
+            "operator":"eq",
+            "rightOperand":"true",
+            "comment":"Nobody must see what the car see."
+            }
+        ]
+    }
+}
