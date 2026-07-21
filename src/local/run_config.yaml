@@ -1,9 +1,0 @@
-sequential:
-  cycle: 10
-  scenario: "bundle"
-
-concurrent:
-  cycle_by_service:
-    detection: 50
-    identification: 20
-  scenario: "bundle"

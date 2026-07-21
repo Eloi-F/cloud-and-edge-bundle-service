@@ -2,7 +2,7 @@ import base64
 import threading
 import cv2
 
-from core.bundle import get_identification_seq, get_identification_parallel
+from core.bundle import get_identification
 
 # Initialize the default camera device
 cap = cv2.VideoCapture(0)
@@ -12,28 +12,15 @@ cap.set(3, 640)
 cap.set(4, 480)
 
 
-def identification(
-    stop_event: threading.Event,
-    cycle: int = 100,
-    parallel_exec: bool = False,
-):
+def identification(stop_event: threading.Event):
     """
     Captures camera frames and sends them to the identification service.
 
     Each frame is encoded as JPEG, converted to Base64, and sent to either the
     sequential or parallel identification endpoint. The returned bounding box
     and class label are drawn on the frame before displaying it.
-
-    In sequential mode, the function processes a single frame and returns.
-    In parallel mode, it repeats the process for the specified number of cycles.
-
-    :param cycle: Number of iterations in parallel mode.
-    :param parallel_exec: Selects the parallel or sequential endpoint.
     """
-    for _ in range(cycle):
-        if stop_event.is_set():
-            break
-
+    while not stop_event.is_set():
         # Capture a frame from the camera, encode it as jpeg, and convert it to Base64
         _, img = cap.read()
         _, buffer = cv2.imencode(".jpg", img)
@@ -41,10 +28,7 @@ def identification(
 
         data = {"img": img_base64}
 
-        if parallel_exec:
-            detections = get_identification_parallel(payload=data)
-        else:
-            detections = get_identification_seq(payload=data)
+        detections = get_identification(payload=data)
 
         for element in detections:
             box_dict = element["box"]
@@ -72,6 +56,3 @@ def identification(
         # Display annotated frame
         cv2.imshow("Output", img)
         cv2.waitKey(1)
-
-        if not parallel_exec:
-            return

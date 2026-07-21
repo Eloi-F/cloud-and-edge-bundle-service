@@ -1,65 +1,62 @@
-import os
+import threading
 
-import yaml
+from services.identification import identification
+from services.detection import detection
+from services.navigation import trajectory_planning
+from core.line_following import circulation
 
-from logic.sequential import run_sequential_logic
-from logic.threaded import run_threaded_logic
 
+def run_threaded_logic():
+    """
+    Runs the multithreaded version of the application.
 
-def validate_config(conf: dict):
+    Workflow:
+    1. Request a route from the navigation service.
+    2. Create the circulation, detection, and identification threads.
+    3. Start all threads.
+    4. Wait for all threads to complete.
+    5. Save latency measurements before exiting.
+    """
+    stop_event = threading.Event()
+    thread_circ = threading.Thread(
+        target=circulation,
+        args=(stop_event,),
+        name="circulation",
+    )
+
+    thread_det = threading.Thread(
+        target=detection,
+        args=(stop_event,),
+        name="detection",
+    )
+
+    thread_id = threading.Thread(
+        target=identification,
+        args=(stop_event,),
+        name="identification",
+    )
+
     try:
-        seq = conf["sequential"]
-        conc = conf["concurrent"]
+        trajectory_planning("Tripode A", "7 avenue colonel roche")
 
-        seq["cycle"]
-        seq["scenario"]
+        thread_circ.start()
+        thread_det.start()
+        thread_id.start()
 
-        cycle_by_service = conc["cycle_by_service"]
-        cycle_by_service["detection"]
-        cycle_by_service["identification"]
-        conc["scenario"]
+        thread_circ.join()
+        thread_det.join()
+        thread_id.join()
 
-    except KeyError as e:
-        raise RuntimeError(f"Missing configuration key: {e}") from e
-
-
-def load_run_conf(file_path: str = "run_config.yaml") -> dict:
-    with open(file_path, "r", encoding="utf-8") as f:
-        conf = yaml.safe_load(f)
-
-    if not isinstance(conf, dict):
-        raise RuntimeError("The running config could not be loaded.")
-
-    validate_config(conf)
-    return conf
+    except KeyboardInterrupt:
+        print("Ctrl+C pressed. Stopping...")
+        stop_event.set()
+        thread_circ.join()
+        thread_det.join()
+        thread_id.join()
 
 
 def main():
-    """
-    Entry point of the benchmark application.
-
-    The user selects either the sequential or multithreaded execution mode.
-    Each mode runs the benchmark with predefined parameters.
-    """
-    conf = load_run_conf(os.getenv("CONFIG_PATH", "run_config.yaml"))
-    print("--- Benchmark Tool ---")
-    print("1. Sequential Version")
-    print("2. Multithreaded Version")
-
-    choice = input("Choose a version (1 or 2): ")
-
-    if choice == "1":
-        print("Starting sequential mode...\n")
-
-        seq_conf = conf["sequential"]
-        run_sequential_logic(seq_conf["cycle"], seq_conf["scenario"])
-    elif choice == "2":
-        print("Starting multithreaded mode...\n")
-
-        conc_conf = conf["concurrent"]
-        run_threaded_logic(conc_conf["cycle_by_service"], conc_conf["scenario"])
-    else:
-        print("Invalid choice.")
+    run_threaded_logic()
 
 
 if __name__ == "__main__":
