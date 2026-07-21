@@ -14,8 +14,8 @@ class Metrics(ABC):
     Base class providing utilities for storing latency measurements.
     """
 
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def add_value(cls, name: str, value: float):
         """Records a latency measurement under the specified metric name."""
         pass
