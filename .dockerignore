@@ -1,8 +1,10 @@
-.git
-.gitignore
-.venv
-__pycache__/
+**/.git
+**/.gitignore
+**/.venv
 **/__pycache__/
-*.pyc
-data/
-README.md
+**/*.pyc
+**/data/
+**/README.md
+**/run.sh
+**/image.png
+**/*.pt
