@@ -19,6 +19,12 @@
                 "operator":"eq",
                 "rightOperand":"true",
                 "comment":"Nobody must see what the car sees."
+            },
+            {
+                "leftOperand":"urn:constraint:flow-rate",
+                "operator":"gt",
+                "rightOperand":"5",
+                "comment":"The needed flow-rate should be at least 5Mb/s."
             }
         ]
     }
