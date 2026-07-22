@@ -1,7 +1,7 @@
 {
     "@context":"./odrl-vocabulary.md",
     "@type":"Set",
-    "uid":"urn:policy-id:services:$SERVICE",
+    "uid":"urn:policy-id:services:$SERVICE-request",
     "duty": {
         "assignee":"urn:services:$SERVICE",
         "target":"urn:host:$HOST",

@@ -1,7 +1,7 @@
 {
     "@context":"./odrl-vocabulary.md",
     "@type":"Set",
-    "uid":"urn:policy-id:services:decision",
+    "uid":"urn:policy-id:services:decision-request",
     "duty": {
         "assignee":"urn:services:decision",
         "target":"urn:host:edge",

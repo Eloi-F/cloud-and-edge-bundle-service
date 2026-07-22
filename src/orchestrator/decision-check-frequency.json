@@ -1,0 +1,19 @@
+{
+    "@context":"./src/odrl-vocabulary.md",
+    "@type":"Set",
+    "uid":"urn:policy-id:services:decision-check-frequency",
+    "duty": {
+        "assignee":"urn:services:decision-request",
+        "target":"urn:host:edge",
+        "action":"urn:actions:verify-ressources-limit-allocation",
+        "comment":"Request for decision service should match bellow limitations.",
+        "constraint": [
+            {
+                "leftOperand":"urn:constraint:frequency",
+                "operator":"gt",
+                "rightOperand":"10",
+                "comment":"Best edge server can handle 10ms between each call."
+            }
+        ]
+    }
+}

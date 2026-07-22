@@ -1,0 +1,19 @@
+{
+    "@context":"./src/odrl-vocabulary.md",
+    "@type":"Set",
+    "uid":"urn:policy-id:services:navigation-check-frequency",
+    "duty": {
+        "assignee":"urn:services:navigation-request",
+        "target":"urn:host:cloud",
+        "action":"urn:actions:verify-ressources-limit-allocation",
+        "comment":"Request for navigation service should match bellow limitations.",
+        "constraint": [
+            {
+                "leftOperand":"urn:constraint:frequency",
+                "operator":"gt",
+                "rightOperand":"500",
+                "comment":"Navigation service does not need continuous calls."
+            }
+        ]
+    }
+}

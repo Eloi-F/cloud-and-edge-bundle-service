@@ -42,9 +42,10 @@
 |:----------------|:----------------------------|:-------------------------------------------|
 | Latency         | `urn:constraint:latency`    | Minimum latency that can be requested      |
 | Encryption      | `urn:constraint:encryption` | Need to encrypt message or not             |
-| Bandwith        | `urn:constraint:bandwith`   | Maximum bandwith amount that can be filled |
 | Frequency       | `urn:constraint:frequency`  | Minimum delay between successive calls     |
 | Flow rate       | `urn:constraint:flow-rate`  | Maximum flow rate allowed                  |
+---- MAYBE PLUS TARD ----
+| Bandwith        | `urn:constraint:bandwith`   | Maximum bandwith amount that can be filled |
 
 ## Remote computing environment
 

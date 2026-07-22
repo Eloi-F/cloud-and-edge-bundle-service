@@ -1,7 +1,7 @@
 {
     "@context":"./odrl-vocabulary.md",
     "@type":"Set",
-    "uid":"urn:policy-id:services:navigation",
+    "uid":"urn:policy-id:services:navigation-request",
     "duty": {
         "assignee":"urn:services:navigation",
         "target":"urn:host:cloud",

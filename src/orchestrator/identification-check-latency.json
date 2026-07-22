@@ -1,0 +1,19 @@
+{
+    "@context":"./src/odrl-vocabulary.md",
+    "@type":"Set",
+    "uid":"urn:policy-id:services:identification-check-latency",
+    "duty": {
+        "assignee":"urn:services:identification-request",
+        "target":"urn:host:cloud",
+        "action":"urn:actions:verify-ressources-limit-allocation",
+        "comment":"Request for identification service should match bellow limitations.",
+        "constraint": [
+            {
+                "leftOperand":"urn:constraint:latency",
+                "operator":"gt",
+                "rightOperand":"25",
+                "comment":"Quickest cloud server can deliver 25ms latency."
+            }
+        ]
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "@context":"./src/odrl-vocabulary.md",
+    "@type":"Set",
+    "uid":"urn:policy-id:services:decision-check-encryption",
+    "duty": {
+        "assignee":"urn:services:decision-request",
+        "target":"urn:host:edge",
+        "action":"urn:actions:verify-ressources-limit-allocation",
+        "comment":"Request for decision service should match bellow limitations.",
+        "constraint": [
+            {
+                "leftOperand":"urn:constraint:encryption",
+                "operator":"eq",
+                "rightOperand":"true",
+                "comment":"Should be encrypted."
+            }
+        ]
+    }
+}
