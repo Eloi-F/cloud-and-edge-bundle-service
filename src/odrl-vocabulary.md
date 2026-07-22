@@ -2,17 +2,17 @@
 
 ## Actuators 
 
-| **Actuators**     | **Nom**        | **Identification**       | **Default** |
-|-------------------|----------------|--------------------------|-------------|
-| Moteur            | `engine`       | urn:vehicle:engine       | float       |
-| Bras de direction | `steering-arm` | urn:vehicle:steering-arm | float       |
-| Clignotant gauche | `left-signal`  | urn:vehicle:left-signal  | bool        |
-| Clignotant droit  | `right-signal` | urn:vehicle:right-signal | bool        |
+| **Actuators** | **Nom**         | **Identification**        | **Default** |
+|:--------------|:----------------|:--------------------------|:------------|
+| Engine        | `engine`        | urn:vehicle:engine        | float       |
+| Steering arm  | `steering-arm`  | urn:vehicle:steering-arm  | float       |
+| Left blinker  | `left-blinker`  | urn:vehicle:left-blinker  | bool        |
+| Right blinker | `right-blinker` | urn:vehicle:right-blinker | bool        |
 
 ## Sensors
 
 | **Sensor**        | **Nom**    | **Identification**   | **Default** |
-|-------------------|------------|----------------------|-------------|
+|:------------------|:-----------|:---------------------|:------------|
 | Camera            | `camera`   | urn:sensors:camera   | detections  |
 | Distance detector | `distance` | urn:sensors:distance | float       |
 | Cliff detector    | `cliff`    | urn:sensors:cliff    | bool        |
@@ -31,7 +31,7 @@
 ## Services
 
 | **Name**       | **Identification**            | **Description**                      |
-|----------------|-------------------------------|--------------------------------------|
+|:---------------|:------------------------------|:-------------------------------------|
 | Navigation     | `urn:services:navigation`     | Shortest path determination          |
 | Identification | `urn:services:identification` | Computer vision for object detection |
 | Decision       | `urn:services:decision`       | Next move decision                   |
@@ -39,17 +39,17 @@
 ## Constraints
 
 | **Name**   | **Identification**          | **Description**                            |
-|------------|-----------------------------|--------------------------------------------|
+|:-----------|:----------------------------|:-------------------------------------------|
 | Latency    | `urn:constraint:latency`    | Minimum latency that can be requested      |
 | Encryption | `urn:constraint:encryption` | Need to encrypt message or not             |
-------------------------------- (À VOIR MAYBE PLUS TARD) --------------------------------
 | Bandwith   | `urn:constraint:bandwith`   | Maximum bandwith amount that can be filled |
 | Frequency  | `urn:constraint:frequency`  | Minimum delay between successive calls     |
+| Flow rate  | `urn:constraint:flow-rate`  | Maximum flow rate allowed                  |
 
 ## Remote computing environment
 
 | **Name** | **Identification** |
-|----------|--------------------|
+|:---------|:-------------------|
 | Cloud    | urn:host:cloud     |
 | Edge     | urn:host:edge      |
 
