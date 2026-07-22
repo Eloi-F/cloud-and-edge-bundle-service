@@ -9,11 +9,11 @@
         "comment":"$SERVICE service must be in the $HOST",
         "constraint": [
             {
-            "leftOperand":"urn:constraint:$CONSTRAINT",
-            "operator":"",
-            "rightOperand":"$TRESHOLD",
-            "comment":""
-            },
+                "leftOperand":"urn:constraint:$CONSTRAINT",
+                "operator":"",
+                "rightOperand":"$TRESHOLD",
+                "comment":""
+            }
         ]
     }
 }

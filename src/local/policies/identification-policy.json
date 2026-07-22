@@ -9,16 +9,16 @@
         "comment":"identification service must be in the cloud",
         "constraint": [
             {
-            "leftOperand":"urn:constraint:latency",
-            "operator":"lt",
-            "rightOperand":"30",
-            "comment":"QoS: maximum delay of 30ms."
+                "leftOperand":"urn:constraint:latency",
+                "operator":"lt",
+                "rightOperand":"30",
+                "comment":"QoS: maximum delay of 30ms."
             },
             {
-            "leftOperand":"urn:constraint:encryption",
-            "operator":"eq",
-            "rightOperand":"true",
-            "comment":"Nobody must see what the car see."
+                "leftOperand":"urn:constraint:encryption",
+                "operator":"eq",
+                "rightOperand":"true",
+                "comment":"Nobody must see what the car sees."
             }
         ]
     }

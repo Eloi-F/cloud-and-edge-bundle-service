@@ -9,16 +9,10 @@
         "comment":"Navigation service must be in the cloud",
         "constraint": [
             {
-            "leftOperand":"urn:constraint:frequency",
-            "operator":"gt",
-            "rightOperand":"500",
-            "comment":"Spamming shortest path API is forbidden."
-            },
-            {
-            "leftOperand":"urn:constraint:encryption",
-            "operator":"eq",
-            "rightOperand":"true",
-            "comment":"Nobody must see where the car is going."
+                "leftOperand":"urn:constraint:encryption",
+                "operator":"eq",
+                "rightOperand":"true",
+                "comment":"Nobody must see where the car is going."
             }
         ]
     }
