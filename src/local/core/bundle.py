@@ -11,7 +11,7 @@ It exposes functions to communicate with:
 - the trajectory planning service.
 """
 import requests
-from core.config import BundleConfig
+from odrl_eval.config import BundleConfig
 
 config = BundleConfig()
 
