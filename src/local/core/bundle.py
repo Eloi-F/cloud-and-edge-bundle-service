@@ -11,9 +11,7 @@ It exposes functions to communicate with:
 - the trajectory planning service.
 """
 import requests
-from odrl_eval.config import BundleConfig
-
-config = BundleConfig()
+from odrl_eval.config import bundle_config
 
 
 def call_decision(payload: dict) -> dict:
@@ -24,8 +22,7 @@ def call_decision(payload: dict) -> dict:
 
     :return: The JSON response containing the updated control values.
     """
-    url = f"{config.edge_base_url}{config.endpoint_decision}"
-    response = requests.post(url, json=payload)
+    response = requests.post(bundle_config["decision"].url, json=payload)
     response.raise_for_status()
     return response.json()
 
@@ -38,8 +35,7 @@ def get_identification(payload: dict) -> dict:
 
     :return: The JSON response containing the identification results.
     """
-    url = f"{config.cloud_base_url}{config.endpoint_identification}"
-    response = requests.post(url, json=payload)
+    response = requests.post(bundle_config["identification"].url, json=payload)
     response.raise_for_status()
     return response.json()
 
@@ -52,7 +48,6 @@ def get_trajectory_planning(payload: dict) -> bytes:
 
     :return: The generated HTML map as raw bytes.
     """
-    url = f"{config.cloud_base_url}{config.endpoint_trajectory}"
-    response = requests.post(url, json=payload)
+    response = requests.post(bundle_config["navigation"].url, json=payload)
     response.raise_for_status()
     return response.content
