@@ -3,7 +3,7 @@
     "@type":"Set",
     "uid":"urn:policy-id:services:navigation-check-flow-rate",
     "duty": {
-        "assignee":"urn:services:navigation-request",
+        "assignee":"urn:services:request:navigation",
         "target":"urn:host:cloud",
         "action":"urn:actions:verify-ressources-limit-allocation",
         "comment":"Request for navigation service should match bellow limitations.",

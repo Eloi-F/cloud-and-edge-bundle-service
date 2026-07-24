@@ -3,7 +3,7 @@
     "@type":"Set",
     "uid":"urn:policy-id:services:identification-check-latency",
     "duty": {
-        "assignee":"urn:services:identification-request",
+        "assignee":"urn:services:request:identification",
         "target":"urn:host:cloud",
         "action":"urn:actions:verify-ressources-limit-allocation",
         "comment":"Request for identification service should match bellow limitations.",

@@ -3,7 +3,7 @@
     "@type":"Set",
     "uid":"urn:policy-id:services:decision-check-flow-rate",
     "duty": {
-        "assignee":"urn:services:decision-request",
+        "assignee":"urn:services:request:decision",
         "target":"urn:host:edge",
         "action":"urn:actions:verify-ressources-limit-allocation",
         "comment":"Request for decision service should match bellow limitations.",
@@ -11,8 +11,8 @@
             {
                 "leftOperand":"urn:constraint:flow-rate",
                 "operator":"lt",
-                "rightOperand":"XX",
-                "comment":"Best edge server can deliver 50Mb/s."
+                "rightOperand":"35",
+                "comment":"Best edge server can deliver 35Mb/s."
             }
         ]
     }
