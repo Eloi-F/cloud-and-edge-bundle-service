@@ -1,0 +1,30 @@
+{
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@type": "Offer",
+    "uid": "urn:offer:service:identification",
+    "assigner": "urn:node:{{NODE_ID}}",
+    "permission":
+    [
+        {
+            "target": "{{BASE_URL}}/identification",
+            "assignee": "urn:client:any",
+            "action": "use"
+        }
+    ],
+    "obligation":
+    [
+        {
+            "target": "{{BASE_URL}}/identification",
+            "assignee": "urn:node:{{NODE_ID}}",
+            "action": "urn:action:guarantee",
+            "constraint":
+            [
+                {
+                    "leftOperand": "urn:metric:encryption",
+                    "operator": "eq",
+                    "rightOperand": true
+                }
+            ]
+        }
+    ]
+}
