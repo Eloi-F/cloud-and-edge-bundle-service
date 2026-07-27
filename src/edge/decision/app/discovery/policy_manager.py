@@ -1,7 +1,7 @@
 import json
 import os
 import threading
-from app.core.config import POLICIES_PATH
+from app.core.config import POLICIES_PATH, BASE_URL, NODE_ID
 
 
 class PolicyManager:
@@ -19,8 +19,17 @@ class PolicyManager:
                 continue
 
             filepath = os.path.join(POLICIES_PATH, filename)
+
             with open(filepath, "r", encoding="utf-8") as f:
-                graph.append(json.load(f))
+                content = f.read()
+
+                content = content.replace("{{BASE_URL}}", BASE_URL)
+                content = content.replace("{{NODE_ID}}", NODE_ID)
+
+                try:
+                    graph.append(json.loads(content))
+                except json.JSONDecodeError as e:
+                    print(f"Erreur de syntaxe JSON dans {filename} : {e}")
 
         return {
             "@context": "http://www.w3.org/ns/odrl.jsonld",
