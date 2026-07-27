@@ -1,38 +1,41 @@
-import os
-
-from fastapi import FastAPI
+import threading
 import uvicorn
-from speed_decision import speed_decision
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+from app.core.config import PORT
+from app.api.routes import router
+from app.discovery.policy_manager import PolicyManager
+from app.discovery.watcher import start_policy_watcher
+from app.discovery.sender import send_periodically
 
 
-@app.post("/decision")
-def read_root(data: dict):
-    """
-    POST endpoint returning speed instruction based on:
-    - distance to obstacle ("front")
-    - cliff detection state ("state")
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    PolicyManager.reload_odrl()
 
-    Expected input format:
-        {
-            "front": float,
-            "state": bool
-        }
+    stop_event = threading.Event()
+    worker_thread = threading.Thread(
+        target=send_periodically,
+        args=(stop_event,),
+        daemon=True,
+    )
+    worker_thread.start()
 
-    Returns:
-        {
-            "speed": float
-        }
-    """
-    dist = data["front"]
-    cliff_state = data["state"]
-    speed = speed_decision(dist, cliff_state)
-    return {"speed": speed}
+    observer = start_policy_watcher()
 
+    try:
+        yield
+    finally:
+        stop_event.set()
+        worker_thread.join(timeout=2)
+
+        observer.stop()
+        observer.join()
+
+
+app = FastAPI(lifespan=lifespan)
+app.include_router(router)
 
 if __name__ == "__main__":
-    # API's webserver
-    uvicorn.run(
-        "main:app", host="0.0.0.0", port=int(os.getenv("PORT", 8002)), reload=True
-    )
+    uvicorn.run("main:app", host="0.0.0.0", port=PORT, reload=True)

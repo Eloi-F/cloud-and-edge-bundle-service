@@ -1,4 +1,4 @@
-def speed_decision(dist: float, cliff_state: bool):
+def calculate_speed(dist: float, cliff_state: bool):
     """
     Returns speed percentage to adopt, based on linear
     formula.
