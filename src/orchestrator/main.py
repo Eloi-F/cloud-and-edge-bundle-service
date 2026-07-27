@@ -1,23 +1,38 @@
 import uvicorn
 from fastapi import FastAPI
+
 from constraints_evaluator import (
-    build_limitations,
-    evaluate_request,
-    build_requested_constraints
+	evaluate_request
 )
+from builder import build_limitations, build_requested_constraints
+from models import OdrlPolicy
 
 app = FastAPI(title="Orchestrator API", version="1.0.0")
 LIMITATIONS = build_limitations()
 
 @app.get("/")
 def root():
-    return {"message": "ODRL Evaluator API"}
+	return {"message": "ODRL Evaluator API"}
 
+def serialize_response(result):
+	pass
 
 @app.post("/demand")
 def validate_constraints(policy: dict):
-    print(evaluate_request(build_requested_constraints(policy),LIMITATIONS))
+	"""
+    POST orchestrator-side endpoint.
+    Expect ODRL policy input format, asking for service resources allocations.
+    Return ODRL policy format, clarifying access to remote host service.
+
+    :param policy:
+    :return: response
+    """
+	validated_policy = OdrlPolicy.model_validate(policy)
+	request = build_requested_constraints(validated_policy)
+	result = evaluate_request(request,LIMITATIONS)
+	return serialize_response(result)
+
 
 if __name__ == "__main__":
-    # Start uvicorn endpoint
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+	# Start uvicorn endpoint
+	uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

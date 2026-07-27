@@ -1,95 +1,59 @@
-from models import Constraint
+from models import ConstraintSet, ConstraintValues, OdrlPolicy
 from pathlib import Path
 
-from parser import parse_policy, parse_value
-from models import Operator
+from parser import parse_policy_file, parse_policy
+import logging as log
 
 TEMPLATE_FILE = "templates-check"
 POLICY_DIRECTORY = Path("./policies/")
 ODRL_FILE_FORMAT = ".json"
 
-def add_constraint(constraints_dico: dict[str, dict[str, Constraint]],
-				   service: str,
-				   constraint_name: str,
-				   constraint_values: Constraint
-	) -> dict[str, dict[str, Constraint]]:
+def add_constraints(accumulator: ConstraintSet,
+                    service: str,
+                    constraint_dict: dict[str, ConstraintValues]
+                    ) -> ConstraintSet:
 	"""Add a constraint to a dictionary of constraints"""
-	if service not in constraints_dico:
-		constraints_dico[service] = {}
-	constraints_dico[service][constraint_name] = constraint_values
-	return constraints_dico
+	for constraint_name, constraint_values in constraint_dict.items():
+		if service not in accumulator:
+			accumulator[service] = {}
+		accumulator[service][constraint_name] = constraint_values
+	return accumulator
 
 
-def build_limitations() -> dict[str, dict[str, Constraint]]:
+def build_limitations() -> ConstraintSet:
 	"""
-	Parse all ODRL policy files in /policies and build a
-	dictionary of resource limitations indexed by service.
+	Parse all ODRL policy files in policies folder
+	and build a ConstraintSet of resource limitations.
 
-	:return: dict
-        Structure of the form
-        {
-            "navigation": {
-                "latency": Constraint(...),
-                "frequency": Constraint(...)
-            },
-            ...
-        }
+	:return: resources_limits
+		Structure of the form ConstraintSet
 	"""
-	# Initialize returned dictionary and policies directory
-	resources_limits = {}
+	resources_limits : ConstraintSet = {}
 
-	# For each orchestrator rule :
 	for file in POLICY_DIRECTORY.iterdir():
-		# Open and load every JSON files except templates file
+		# Open and load every ODRL files except templates file
 		if file.stem != TEMPLATE_FILE and file.suffix == ODRL_FILE_FORMAT:
 
-			# Get the service, constraint name, operator and value
-			service, constraint_name, constraint_values = parse_policy(file)
+			service, constraint_dict = parse_policy_file(file)
+			add_constraints(resources_limits,service,constraint_dict)
 
-			# Add rule in the dictionary
-			add_constraint(resources_limits,service,constraint_name,constraint_values)
-
+	log.info("Successfully build orchestrator ConstraintSet limitations.")
 	return resources_limits
 
 
-def build_requested_constraints(request: dict) -> dict[str, dict[str, Constraint]]:
+def build_requested_constraints(request: OdrlPolicy) -> ConstraintSet:
 	"""
 	Parse received dictionary containing requested constraints
-	and build a similar-format dictionary as build_limitations
-	to compare request // limitations.
+	and build a ConstraintSet to compare request // limitations.
 
 	:param request:
-	:return: dict
-        Structure of the form
-        {
-            "navigation": {
-                "latency": Constraint(...),
-                "frequency": Constraint(...)
-            },
-            ...
-        }
+	:return: resources_request
+		Structure of the form ConstraintSet
 	"""
-	resources_request = {}
+	resources_request: ConstraintSet = {}
 
-	try:
-		# Extract the relevant service
-		uid = request["uid"]
-		service = uid.rsplit(":",1)[-1]
+	service, constraint_dict = parse_policy(request)
+	add_constraints(resources_request, service, constraint_dict)
 
-		# Parse all asked resources
-		for requested_constraint in request["duty"]["constraint"]:
-
-			# Get the service, constraint name, operator and value
-			constraint_name = requested_constraint["leftOperand"].rsplit(":",1)[-1]
-			constraint_values = Constraint(
-				Operator(requested_constraint["operator"]),
-				parse_value(requested_constraint["rightOperand"])
-			)
-
-			# Add in the dictionary
-			add_constraint(resources_request, service, constraint_name, constraint_values)
-
-	except KeyError as e:
-		raise ValueError(f"Invalid request: {request}") from e
-
+	log.info("Successfully build request ConstraintSet.")
 	return resources_request

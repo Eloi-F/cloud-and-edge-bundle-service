@@ -1,47 +1,54 @@
-from models import Constraint, Operator
+from models import Operand, ConstraintValues, OdrlPolicy
 from pathlib import Path
 import json
 
-def parse_value(value: str):
+
+def parse_value(value: str) -> Operand:
 	"""Parse the rightOperand value into its proper format"""
+	if not isinstance(value,str):
+		raise ValueError(f"Invalid value: {value} in ODRL file.")
 	if value == "true":
 		return True
 	if value == "false":
 		return False
 	try:
-		int_value = int(value)
-		return int_value
+		return int(value)
 	except ValueError :
 		pass
 	try:
-		float_value = float(value)
-		return float_value
+		return float(value)
 	except ValueError :
 		pass
 	return value
 
-def parse_policy(policy_file: Path) -> tuple[str,str,Constraint] :
+
+def parse_policy_file(policy_file: Path) -> tuple[str, dict[str, ConstraintValues]] :
+	return parse_policy(
+		OdrlPolicy.model_validate(
+			json.loads(policy_file.read_text(encoding="utf-8"))
+		)
+	)
+
+
+def parse_policy(policy: OdrlPolicy) -> tuple[str, dict[str, ConstraintValues]] :
 	"""
-	Parse a given orchestrator-side policy file and return
-	relevant service, associated constraint and its values.
+	Parse a given policy file and return associated
+	service and a dict of its constraints.
 
-	:param policy_file:
-	:return: tuple(service,constraint_name,constraint_values)
+	:param policy:
+	:return: tuple(service,constraint_dict)
 	"""
-	policy = json.loads(policy_file.read_text(encoding="utf-8"))
+	constraint_dict : dict[str, ConstraintValues] = {}
 
-	# Extract uid, operator and value from file
-	try:
-		uid = policy["uid"]
-		operator = policy["duty"]["constraint"][0]["operator"]
-		limit_value = policy["duty"]["constraint"][0]["rightOperand"]
-	except KeyError as e:
-		raise ValueError(f"Invalid ODRL file: {policy_file}") from e
+	service = policy.duty.assignee.rsplit(":", 1)[-1]
 
-	# Example UID format
-	# urn:policy-id:services:navigation-check-latency
-	policy_name = uid.rsplit(":",1)[-1]
-	service, _, constraint_name = policy_name.partition("-check-")
-	constraint_values = Constraint(Operator(operator),parse_value(limit_value))
+	for constraint in policy.duty.constraint:
+		# Parse constraint name
+		constraint_name = constraint.leftOperand.rsplit(":", 1)[-1]
 
-	return service, constraint_name, constraint_values
+		constraint_dict[constraint_name] = ConstraintValues(
+			constraint.operator,
+			parse_value(constraint.rightOperand)
+		)
+
+	return service, constraint_dict
