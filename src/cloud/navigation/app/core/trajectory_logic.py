@@ -20,7 +20,7 @@ if not api_key:
 gmaps = googlemaps.Client(key=api_key)
 
 
-def trajectory(start_address, destination_address):
+def build_trajectory_map(start_address: str, destination_address: str):
     """
     Performs shortest path determination for given
     addresses.
