@@ -5,21 +5,25 @@ from pydantic import BaseModel, Field
 
 Operand = int | float | bool | str
 
+
 class Operator(Enum):
-	EQ = 'eq'
-	LT = 'lt'
-	LTEQ = 'lteq'
-	GT = 'gt'
-	GTEQ = 'gteq'
+    EQ = "eq"
+    LT = "lt"
+    LTEQ = "lteq"
+    GT = "gt"
+    GTEQ = "gteq"
+
 
 @dataclass(frozen=True)
 class ConstraintValues:
-	"""
-	Represents the values describing an ODRL constraint :
-	(operator, operand)
-	"""
-	operator: Operator
-	value: Operand
+    """
+    Represents the values describing an ODRL constraint :
+    (operator, operand)
+    """
+
+    operator: Operator
+    value: Operand
+
 
 type ConstraintSet = dict[str, dict[str, ConstraintValues]]
 """
@@ -37,23 +41,26 @@ Structure of the form
 
 
 class OdrlConstraint(BaseModel):
-	leftOperand : str
-	operator : Operator
-	rightOperand : Operand
-	comment : str | None = None
+    leftOperand: str
+    operator: Operator
+    rightOperand: Operand
+    comment: str | None = None
 
-class OdrlDuty(BaseModel) :
-	assignee : str
-	target : str
-	action : str
-	comment : str | None = None
-	constraint : list[OdrlConstraint]
 
-class OdrlPolicy(BaseModel) :
-	"""
-	Pydantic model to check correct format of incoming ODRL policies.
-	"""
-	context : str = Field(alias="@context")
-	type : str = Field(alias="@type")
-	uid : str
-	duty : OdrlDuty
+class OdrlDuty(BaseModel):
+    assignee: str
+    target: str
+    action: str
+    comment: str | None = None
+    constraint: list[OdrlConstraint]
+
+
+class OdrlPolicy(BaseModel):
+    """
+    Pydantic model to check correct format of incoming ODRL policies.
+    """
+
+    context: str = Field(alias="@context")
+    type: str = Field(alias="@type")
+    uid: str
+    duty: OdrlDuty
