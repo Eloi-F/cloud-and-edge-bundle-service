@@ -1,11 +1,10 @@
+import json
 import uvicorn
 from fastapi import FastAPI
 
-from constraints_evaluator import (
-	evaluate_request
-)
+from constraints_evaluator import evaluate_request
 from builder import build_limitations, build_requested_constraints
-from models import OdrlPolicy
+from models import OdrlPolicy, OdrlConstraint
 
 app = FastAPI(title="Orchestrator API", version="1.0.0")
 LIMITATIONS = build_limitations()
@@ -14,8 +13,11 @@ LIMITATIONS = build_limitations()
 def root():
 	return {"message": "ODRL Evaluator API"}
 
-def serialize_response(result):
-	pass
+def serialize_response(result: tuple[bool, list[OdrlConstraint]]):
+	return json.dumps({
+		"result":result[0],
+		"reason":result[1]
+	})
 
 @app.post("/demand")
 def validate_constraints(policy: dict):

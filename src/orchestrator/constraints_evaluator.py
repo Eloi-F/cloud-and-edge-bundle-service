@@ -1,7 +1,8 @@
-from models import ConstraintValues, Operator, Operand, ConstraintSet
+from models import ConstraintValues, Operator, Operand, ConstraintSet, OdrlConstraint
 from math import inf
 from dataclasses import dataclass
 
+URN_CONSTRAINT = "urn:constraint:"
 
 @dataclass(frozen=True)
 class Interval:
@@ -65,7 +66,7 @@ def compare_constraints(req_constraint: ConstraintValues, orch_constraint: Const
 	return req_interval.overlaps(orch_interval)
 
 
-def evaluate_request(request: ConstraintSet, limits: ConstraintSet) -> tuple[bool, list[ConstraintValues] | None]:
+def evaluate_request(request: ConstraintSet, limits: ConstraintSet) -> tuple[bool, list[OdrlConstraint]]:
 	"""
 	Compare and tell if the request matches with current limitations.
 	If it does not, return the impossible constraints.
@@ -78,7 +79,7 @@ def evaluate_request(request: ConstraintSet, limits: ConstraintSet) -> tuple[boo
 
 	# If no server deliver the service
 	if service not in limits:
-		return False, None
+		return False, []
 
 	ok = True
 	impossible_constraints = []
@@ -87,7 +88,13 @@ def evaluate_request(request: ConstraintSet, limits: ConstraintSet) -> tuple[boo
 	for constraint_name in request[service]:
 		if not compare_constraints(request[service][constraint_name],limits[service][constraint_name]):
 			ok = False
-			impossible_constraints.append(request[service][constraint_name])
+			impossible_constraints.append(
+				{
+					"leftOperand":URN_CONSTRAINT+constraint_name,
+					"operator":request[service][constraint_name].operator.value,
+					"rightOperand":request[service][constraint_name].value
+				}
+			)
 	if not ok :
 		return False,impossible_constraints
-	return True,None
+	return True,[]
