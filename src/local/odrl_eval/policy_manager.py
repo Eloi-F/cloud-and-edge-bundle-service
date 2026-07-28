@@ -2,6 +2,8 @@ from dataclasses import dataclass
 import json
 from pathlib import Path
 
+from core.config import ORCHESTRATOR_DOMAIN, POLICIES_PATH
+
 import requests
 
 
@@ -21,7 +23,7 @@ class BundleConfig:
         self.port: int = 8000
         self.cloud_ip: str = "[cloud-server-ip]"
         self.edge_ip: str = "[edge-server-ip]"
-        self.policies_path = Path("./policies")
+        self.policies_path = Path(POLICIES_PATH)
 
         self.endpoints = {
             "decision": "/decision",
@@ -50,7 +52,7 @@ class BundleConfig:
         }
 
     def ask_orchestrator(self, policy) -> bool:
-        reply = requests.post("ORCHESTRATOR_DOMAIN", json=policy)
+        reply = requests.post(ORCHESTRATOR_DOMAIN, json=policy)
 
         try:
             reply.raise_for_status()
