@@ -1,13 +1,13 @@
-from models import ConstraintValues, OdrlPolicy
+from models import ConstraintValues, OdrlSet
 from pathlib import Path
 
 
 def parse_policy_file(policy_file: Path) -> tuple[str, dict[str, ConstraintValues]]:
-    policy = OdrlPolicy.model_validate_json(policy_file.read_text(encoding="utf-8"))
+    policy = OdrlSet.model_validate_json(policy_file.read_text(encoding="utf-8"))
     return parse_policy(policy)
 
 
-def parse_policy(policy: OdrlPolicy) -> tuple[str, dict[str, ConstraintValues]]:
+def parse_policy(policy: OdrlSet) -> tuple[str, dict[str, ConstraintValues]]:
     """
     Parse a given policy file and return associated
     service and a dict of its constraints.

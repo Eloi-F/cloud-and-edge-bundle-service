@@ -1,4 +1,4 @@
-from models import ConstraintSet, ConstraintValues, OdrlPolicy
+from models import ConstraintSet, ConstraintValues, OdrlSet
 from pathlib import Path
 
 from parser import parse_policy_file, parse_policy
@@ -41,7 +41,7 @@ def build_limitations() -> ConstraintSet:
     return resources_limits
 
 
-def build_requested_constraints(request: OdrlPolicy) -> ConstraintSet:
+def build_requested_constraints(request: OdrlSet) -> ConstraintSet:
     """
     Parse received dictionary containing requested constraints
     and build a ConstraintSet to compare request // limitations.

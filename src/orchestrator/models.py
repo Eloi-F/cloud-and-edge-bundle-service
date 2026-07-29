@@ -7,22 +7,22 @@ Operand = int | float | bool
 
 
 class Operator(Enum):
-    EQ = "eq"
-    LT = "lt"
-    LTEQ = "lteq"
-    GT = "gt"
-    GTEQ = "gteq"
+	EQ = "eq"
+	LT = "lt"
+	LTEQ = "lteq"
+	GT = "gt"
+	GTEQ = "gteq"
 
 
 @dataclass(frozen=True)
 class ConstraintValues:
-    """
-    Represents the values describing an ODRL constraint :
-    (operator, operand)
-    """
+	"""
+	Represents the values describing an ODRL constraint :
+	(operator, operand)
+	"""
 
-    operator: Operator
-    value: Operand
+	operator: Operator
+	value: Operand
 
 
 type ConstraintSet = dict[str, dict[str, ConstraintValues]]
@@ -39,28 +39,44 @@ Structure of the form
 	}
 """
 
+# Pydantic models
 
 class OdrlConstraint(BaseModel):
-    leftOperand: str
-    operator: Operator
-    rightOperand: Operand
-    comment: str | None = None
+	leftOperand: str
+	operator: Operator
+	rightOperand: Operand
+	unit: str | None = None
+	comment: str | None = None
 
 
-class OdrlDuty(BaseModel):
-    assignee: str
-    target: str
-    action: str
-    comment: str | None = None
-    constraint: list[OdrlConstraint]
+class OdrlRule(BaseModel):
+	assignee: str
+	target: str
+	action: str
+	constraint: list[OdrlConstraint] | None = None
+	comment: str | None = None
 
 
-class OdrlPolicy(BaseModel):
-    """
-    Pydantic model to check correct format of incoming ODRL policies.
-    """
+class OdrlSet(BaseModel):
+	"""
+	Pydantic model to check correct format of incoming ODRL Sets from cars.
+	"""
+	context: str = Field(alias="@context")
+	type: str = Field(alias="@type")
+	uid: str
+	duty: OdrlRule
 
-    context: str = Field(alias="@context")
-    type: str = Field(alias="@type")
-    uid: str
-    duty: OdrlDuty
+class OdrlOffer(BaseModel):
+	context: str = Field(alias="@context")
+	type: str = Field(alias="@type")
+	uid: str
+	assigner: str
+	permission: list[OdrlRule]
+	obligation: list[OdrlRule]
+
+class OdrlGraph(BaseModel):
+	"""
+	Pydantic model to check correct format of incoming ODRL Offers from servers.
+	"""
+	context: str = Field(alias="@context")
+	graph: list[OdrlOffer] = Field(alias="@graph")
