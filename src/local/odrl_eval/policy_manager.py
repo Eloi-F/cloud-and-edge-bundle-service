@@ -9,13 +9,7 @@ import requests
 
 @dataclass
 class Service:
-    ip: str
-    port: int
     endpoint: str
-
-    @property
-    def url(self):
-        return f"http://{self.ip}:{self.port}{self.endpoint}"
 
 
 class BundleConfig:
@@ -83,24 +77,26 @@ class BundleConfig:
 
     def odrl_to_config(self, odrl: dict):
         for policy in odrl["@graph"]:
-            service_name = policy["uid"].split(":")[-1]
+            service_name = policy["uid"].rsplit(":", 1)[-1]
 
-            target = policy["duty"]["target"].split(":")[-1]
+            last_constraint = policy["duty"]["constraint"][-1]
+            if last_constraint.get("leftOperand") != "urn:constraint:host":
+                print(
+                    f"There was an error, the last element of constraint is not the host for {service_name} service."
+                )
+                continue
 
-            if target == "edge":
-                ip = self.edge_ip
-            elif target == "cloud":
-                ip = self.cloud_ip
-            else:
-                raise ValueError(f"Unknown target: {target}")
+            host = last_constraint.get("rightOperand")
+
+            if not host:
+                print(
+                    f"The value of the host for {service_name} service is not defined"
+                )
+                continue
 
             endpoint = self.endpoints[service_name]
 
-            self.bundle_decision[service_name] = Service(
-                ip=ip,
-                port=self.port,
-                endpoint=endpoint,
-            )
+            self.bundle_decision[service_name] = Service(endpoint=endpoint)
 
 
-bundle_config = BundleConfig()
+bundle_config = BundleConfig().bundle_decision
