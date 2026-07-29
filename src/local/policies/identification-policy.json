@@ -10,19 +10,19 @@
         "constraint":
         [
             {
-                "leftOperand": "urn:constraint:latency",
+                "leftOperand": "urn:metric:latency",
                 "operator": "lt",
                 "rightOperand": 30,
                 "comment": "QoS: maximum delay of 30ms."
             },
             {
-                "leftOperand": "urn:constraint:encryption",
+                "leftOperand": "urn:metric:encryption",
                 "operator": "eq",
                 "rightOperand": true,
                 "comment": "Nobody must see what the car sees."
             },
             {
-                "leftOperand": "urn:constraint:flow-rate",
+                "leftOperand": "urn:metric:flow-rate",
                 "operator": "gt",
                 "rightOperand": 5,
                 "comment": "The needed flow-rate should be at least 5Mb/s."

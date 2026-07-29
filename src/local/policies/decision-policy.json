@@ -10,12 +10,12 @@
         "constraint":
         [
             {
-                "leftOperand": "urn:constraint:latency",
+                "leftOperand": "urn:metric:latency",
                 "operator": "lt",
                 "rightOperand": 15
             },
             {
-                "leftOperand": "urn:constraint:encryption",
+                "leftOperand": "urn:metric:encryption",
                 "operator": "eq",
                 "rightOperand": true
             }

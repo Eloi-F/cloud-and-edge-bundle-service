@@ -10,7 +10,7 @@
         "constraint":
         [
             {
-                "leftOperand": "urn:constraint:encryption",
+                "leftOperand": "urn:metric:encryption",
                 "operator": "eq",
                 "rightOperand": true,
                 "comment": "Nobody must see where the car is going."

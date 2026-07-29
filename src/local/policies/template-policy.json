@@ -10,7 +10,7 @@
         "constraint":
         [
             {
-                "leftOperand": "urn:constraint:$CONSTRAINT",
+                "leftOperand": "urn:metric:$CONSTRAINT",
                 "operator": "",
                 "rightOperand": "$TRESHOLD",
                 "comment": ""
