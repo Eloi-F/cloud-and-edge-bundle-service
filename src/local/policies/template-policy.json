@@ -1,18 +1,19 @@
 {
-    "@context":"./odrl-vocabulary.md",
-    "@type":"Set",
-    "uid":"urn:policy-id:services:request:$SERVICE",
-    "duty": {
-        "assignee":"urn:services:$SERVICE",
-        "target":"urn:host:$HOST",
-        "action":"urn:actions:associate-service-host",
-        "comment":"$SERVICE service must be in the $HOST",
-        "constraint": [
+    "@context": "./odrl-vocabulary.md",
+    "@type": "Set",
+    "uid": "urn:policy-id:services:request:$SERVICE",
+    "duty":
+    {
+        "assignee": "urn:vehicle:$ELEMENT",
+        "action": "use",
+        "target": "urn:services:$SERVICE",
+        "constraint":
+        [
             {
-                "leftOperand":"urn:constraint:$CONSTRAINT",
-                "operator":"",
-                "rightOperand":"$TRESHOLD",
-                "comment":""
+                "leftOperand": "urn:constraint:$CONSTRAINT",
+                "operator": "",
+                "rightOperand": "$TRESHOLD",
+                "comment": ""
             }
         ]
     }

@@ -4,10 +4,9 @@
     "uid": "urn:policy-id:services:request:identification",
     "duty":
     {
-        "assignee": "urn:services:identification",
-        "target": "urn:host:cloud",
-        "action": "urn:actions:associate-service-host",
-        "comment": "identification service must be in the cloud",
+        "assignee": "urn:vehicle:controller",
+        "action": "use",
+        "target": "urn:services:identification",
         "constraint":
         [
             {

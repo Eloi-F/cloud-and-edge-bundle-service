@@ -4,10 +4,9 @@
     "uid": "urn:policy-id:services:request:navigation",
     "duty":
     {
-        "assignee": "urn:services:navigation",
-        "target": "urn:host:cloud",
-        "action": "urn:actions:associate-service-host",
-        "comment": "Navigation service must be in the cloud",
+        "assignee": "urn:vehicle:controller",
+        "action": "use",
+        "target": "urn:services:navigation",
         "constraint":
         [
             {
