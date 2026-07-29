@@ -1,18 +1,20 @@
 {
-    "@context":"./odrl-vocabulary.md",
-    "@type":"Set",
-    "uid":"urn:policy-id:services:request:navigation",
-    "duty": {
-        "assignee":"urn:services:navigation",
-        "target":"urn:host:cloud",
-        "action":"urn:actions:associate-service-host",
-        "comment":"Navigation service must be in the cloud",
-        "constraint": [
+    "@context": "./odrl-vocabulary.md",
+    "@type": "Set",
+    "uid": "urn:policy-id:services:request:navigation",
+    "duty":
+    {
+        "assignee": "urn:services:navigation",
+        "target": "urn:host:cloud",
+        "action": "urn:actions:associate-service-host",
+        "comment": "Navigation service must be in the cloud",
+        "constraint":
+        [
             {
-                "leftOperand":"urn:constraint:encryption",
-                "operator":"eq",
-                "rightOperand":"true",
-                "comment":"Nobody must see where the car is going."
+                "leftOperand": "urn:constraint:encryption",
+                "operator": "eq",
+                "rightOperand": true,
+                "comment": "Nobody must see where the car is going."
             }
         ]
     }

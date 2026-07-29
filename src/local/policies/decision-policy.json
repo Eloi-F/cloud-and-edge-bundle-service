@@ -1,24 +1,26 @@
 {
-    "@context":"./odrl-vocabulary.md",
-    "@type":"Set",
-    "uid":"urn:policy-id:services:request:decision",
-    "duty": {
-        "assignee":"urn:services:decision",
-        "target":"urn:host:edge",
-        "action":"urn:actions:associate-service-host",
-        "comment":"decision service must be in the edge",
-        "constraint": [
+    "@context": "./odrl-vocabulary.md",
+    "@type": "Set",
+    "uid": "urn:policy-id:services:request:decision",
+    "duty":
+    {
+        "assignee": "urn:services:decision",
+        "target": "urn:host:edge",
+        "action": "urn:actions:associate-service-host",
+        "comment": "decision service must be in the edge",
+        "constraint":
+        [
             {
-                "leftOperand":"urn:constraint:latency",
-                "operator":"lt",
-                "rightOperand":"15",
-                "comment":"QoS: maximum delay of 15ms."
+                "leftOperand": "urn:constraint:latency",
+                "operator": "lt",
+                "rightOperand": 15,
+                "comment": "QoS: maximum delay of 15ms."
             },
             {
-                "leftOperand":"urn:constraint:encryption",
-                "operator":"eq",
-                "rightOperand":"true",
-                "comment":"Nobody must see what the car is about to do."
+                "leftOperand": "urn:constraint:encryption",
+                "operator": "eq",
+                "rightOperand": true,
+                "comment": "Nobody must see what the car is about to do."
             }
         ]
     }

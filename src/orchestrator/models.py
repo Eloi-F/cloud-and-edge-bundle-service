@@ -3,7 +3,7 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
-Operand = int | float | bool | str
+Operand = int | float | bool
 
 
 class Operator(Enum):

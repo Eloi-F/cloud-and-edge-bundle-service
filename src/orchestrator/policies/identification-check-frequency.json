@@ -1,18 +1,20 @@
 {
-    "@context":"./src/odrl-vocabulary.md",
-    "@type":"Set",
-    "uid":"urn:policy-id:services:identification-check-frequency",
-    "duty": {
-        "assignee":"urn:services:request:identification",
-        "target":"urn:host:cloud",
-        "action":"urn:actions:verify-ressources-limit-allocation",
-        "comment":"Request for identification service should match bellow limitations.",
-        "constraint": [
+    "@context": "./src/odrl-vocabulary.md",
+    "@type": "Set",
+    "uid": "urn:policy-id:services:identification-check-frequency",
+    "duty":
+    {
+        "assignee": "urn:services:request:identification",
+        "target": "urn:host:cloud",
+        "action": "urn:actions:verify-ressources-limit-allocation",
+        "comment": "Request for identification service should match bellow limitations.",
+        "constraint":
+        [
             {
-                "leftOperand":"urn:constraint:frequency",
-                "operator":"gt",
-                "rightOperand":"100",
-                "comment":"Best cloud server can handle 100ms between each call."
+                "leftOperand": "urn:constraint:frequency",
+                "operator": "gt",
+                "rightOperand": 100,
+                "comment": "Best cloud server can handle 100ms between each call."
             }
         ]
     }

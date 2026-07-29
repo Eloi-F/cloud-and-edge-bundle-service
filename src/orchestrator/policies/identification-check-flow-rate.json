@@ -1,18 +1,20 @@
 {
-    "@context":"./src/odrl-vocabulary.md",
-    "@type":"Set",
-    "uid":"urn:policy-id:services:identification-check-flow-rate",
-    "duty": {
-        "assignee":"urn:services:request:identification",
-        "target":"urn:host:cloud",
-        "action":"urn:actions:verify-ressources-limit-allocation",
-        "comment":"Request for identification service should match bellow limitations.",
-        "constraint": [
+    "@context": "./src/odrl-vocabulary.md",
+    "@type": "Set",
+    "uid": "urn:policy-id:services:identification-check-flow-rate",
+    "duty":
+    {
+        "assignee": "urn:services:request:identification",
+        "target": "urn:host:cloud",
+        "action": "urn:actions:verify-ressources-limit-allocation",
+        "comment": "Request for identification service should match bellow limitations.",
+        "constraint":
+        [
             {
-                "leftOperand":"urn:constraint:flow-rate",
-                "operator":"lt",
-                "rightOperand":"50",
-                "comment":"Best cloud server can deliver 50Mb/s."
+                "leftOperand": "urn:constraint:flow-rate",
+                "operator": "lt",
+                "rightOperand": 50,
+                "comment": "Best cloud server can deliver 50Mb/s."
             }
         ]
     }

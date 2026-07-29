@@ -33,7 +33,39 @@ def validate_constraints(policy: OdrlPolicy):
     result = evaluate_request(request, LIMITATIONS)
     return serialize_response(result)
 
+doody = OdrlPolicy.model_validate({
+    "@context":"./odrl-vocabulary.md",
+    "@type":"Set",
+    "uid":"urn:policy-id:services:request:identification",
+    "duty": {
+        "assignee":"urn:services:identification",
+        "target":"urn:host:cloud",
+        "action":"urn:actions:associate-service-host",
+        "comment":"identification service must be in the cloud",
+        "constraint": [
+            {
+                "leftOperand":"urn:constraint:latency",
+                "operator":"lt",
+                "rightOperand":"30",
+                "comment":"QoS: maximum delay of 30ms."
+            },
+            {
+                "leftOperand":"urn:constraint:encryption",
+                "operator":"eq",
+                "rightOperand":"false",
+                "comment":"Nobody must see what the car sees."
+            },
+            {
+                "leftOperand":"urn:constraint:flow-rate",
+                "operator":"gt",
+                "rightOperand":"5",
+                "comment":"The needed flow-rate should be at least 5Mb/s."
+            }
+        ]
+    }
+})
 
 if __name__ == "__main__":
     # Start uvicorn endpoint
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    # uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    print(validate_constraints(doody))
