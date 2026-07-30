@@ -1,13 +1,20 @@
 import json
 import uvicorn
 from fastapi import FastAPI
+import asyncio
 
-from constraints_evaluator import evaluate_request
-from builder import build_limitations, build_requested_constraints
-from models import OdrlSet, OdrlConstraint, OdrlGraph
+from src.orchestrator.server.builder import discover_topology, add_server, add_offer
+from src.orchestrator.server.parser import parse_graph
+
+from src.orchestrator.common.models import (
+	OdrlConstraint
+)
+from src.orchestrator.server.models import (
+	OfferingServerDict, OdrlGraph,
+)
 
 app = FastAPI(title="Orchestrator API", version="1.0.0")
-LIMITATIONS = build_limitations()
+OFFERS, OFFERS_LOCKER, SERVERS, SERVERS_LOCKER = discover_topology()
 
 
 def serialize_response(result: tuple[bool, list[OdrlConstraint]]):
@@ -21,13 +28,25 @@ def root():
 
 @app.post("/server")
 def handler_offer(offer:OdrlGraph):
+	"""
+	POST orchestrator-side endpoint exposed to servers.
+	Expect ODRL policy input format, offering services host under constraints.
+	Update OFFERS and SERVERS variables.
+	TO BE DONE : Return Acknowledgment.
+
+	:param offer:
+	:return:
+	"""
+	server_id, server_url, server_offer = parse_graph(offer)
+	add_server(SERVERS,SERVERS_LOCKER,server_id,server_url)
+	add_offer(OFFERS,OFFERS_LOCKER,server_id,server_offer)
 	return
 
 
 @app.post("/demand")
 def validate_constraints(policy: OdrlSet):
 	"""
-	POST orchestrator-side endpoint.
+	POST orchestrator-side endpoint exposed to clients.
 	Expect ODRL policy input format, asking for service resources allocations.
 	Return ODRL policy format, clarifying access to remote host service.
 
@@ -42,108 +61,4 @@ def validate_constraints(policy: OdrlSet):
 
 if __name__ == "__main__":
 	# Start uvicorn endpoint
-	# uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
-
-	doody = OdrlGraph.model_validate({
-    "@context": "http://www.w3.org/ns/odrl.jsonld",
-    "@graph":
-    [
-        {
-            "@context": "http://www.w3.org/ns/odrl.jsonld",
-            "@type": "Offer",
-            "uid": "urn:offer:service:decision",
-            "assigner": "urn:node:dell-5799",
-            "permission":
-            [
-                {
-                    "target": "http://127.0.0.1:8002/decision",
-                    "assignee": "urn:client:any",
-                    "action": "use"
-                }
-            ],
-            "obligation":
-            [
-                {
-                    "target": "http://127.0.0.1:8002/decision",
-                    "assignee": "urn:node:dell-5799",
-                    "action": "urn:action:guarantee",
-                    "constraint":
-                    [
-                        {
-                            "leftOperand": "urn:metric:latency",
-                            "operator": "lteq",
-                            "rightOperand": 15,
-                            "unit": "http://qudt.org/vocab/unit/MilliSEC"
-                        },
-                        {
-                            "leftOperand": "urn:metric:encryption",
-                            "operator": "eq",
-                            "rightOperand": True
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "@context": "http://www.w3.org/ns/odrl.jsonld",
-            "@type": "Offer",
-            "uid": "urn:offer:service:navigation",
-            "assigner": "urn:node:dell-5799",
-            "permission":
-            [
-                {
-                    "target": "http://127.0.0.1:8002/trajectory_planning",
-                    "assignee": "urn:client:any",
-                    "action": "use"
-                }
-            ],
-            "obligation":
-            [
-                {
-                    "target": "http://127.0.0.1:8002/trajectory_planning",
-                    "assignee": "urn:node:dell-5799",
-                    "action": "urn:action:guarantee",
-                    "constraint":
-                    [
-                        {
-                            "leftOperand": "urn:metric:encryption",
-                            "operator": "eq",
-                            "rightOperand": True
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "@context": "http://www.w3.org/ns/odrl.jsonld",
-            "@type": "Offer",
-            "uid": "urn:offer:service:testing",
-            "assigner": "urn:node:dell-5799",
-            "permission":
-            [
-                {
-                    "target": "http://127.0.0.1:8002/testing",
-                    "assignee": "urn:client:any",
-                    "action": "use"
-                }
-            ],
-            "obligation":
-            [
-                {
-                    "target": "http://127.0.0.1:8002/testing",
-                    "assignee": "urn:node:dell-5799",
-                    "action": "urn:action:guarantee",
-                    "constraint":
-                    [
-                        {
-                            "leftOperand": "urn:metric:encryption",
-                            "operator": "eq",
-                            "rightOperand": True
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-})
-
+	uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

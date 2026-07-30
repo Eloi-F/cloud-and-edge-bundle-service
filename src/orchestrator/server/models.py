@@ -34,7 +34,7 @@ A typed dictionary of offered services by a server.
 	}
 """
 
-type OrchestratorOffer = dict[str, ServerOfferSet]
+type OrchestratorOfferSet = dict[str, ServerOfferSet]
 """
 A typed dictionary of all offered services by a server
 that the orchestrator can distribute to any client.

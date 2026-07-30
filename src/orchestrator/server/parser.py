@@ -1,9 +1,10 @@
 from models import (
 	OdrlOffer,
-	OdrlGraph
+	OdrlGraph,
+	ServerOfferSet,
 )
 from src.orchestrator.common.models import (
-
+	ConstraintValues
 )
 
 # URN format example :
@@ -14,7 +15,7 @@ URN_SEPARATOR = ":"
 # "http://server-ip:port/service"
 URL_SEPARATOR = "/"
 
-def add_offer(offers_set: OfferSet, offer: OdrlOffer) -> OfferSet:
+def add_offer(offers_set: ServerOfferSet, offer: OdrlOffer) -> ServerOfferSet:
 	for obligation in offer.obligation :
 		service =  obligation.target.rsplit(URL_SEPARATOR,1)[0]
 		for constraint in obligation.constraints :
@@ -31,7 +32,7 @@ def get_server_info(offer: OdrlOffer) -> tuple[str,str]:
 	return server_id, server_url
 
 
-def parse_offer_list(odrl_offers:list[OdrlOffer]) -> tuple[str,str,OfferSet]:
+def parse_offer_list(odrl_offers:list[OdrlOffer]) -> tuple[str,str,ServerOfferSet]:
 	"""
 	Parse a list of Odrl offers from a server and return
 	server credentials and ConstraintSet of
@@ -40,12 +41,12 @@ def parse_offer_list(odrl_offers:list[OdrlOffer]) -> tuple[str,str,OfferSet]:
 	:return: tuple(server_id,server_url,offers_set)
 	"""
 	server_id, server_url = get_server_info(odrl_offers[0])
-	offers_set: OfferSet = {}
+	offers_set: ServerOfferSet = {}
 	for offer in odrl_offers :
 		add_offer(offers_set, offer)
 
 	return server_id, server_url, offers_set
 
 
-def parse_graph(graph: OdrlGraph) -> tuple[str,str,OfferSet]:
+def parse_graph(graph: OdrlGraph) -> tuple[str,str,ServerOfferSet]:
 	return parse_offer_list(graph.graph)
