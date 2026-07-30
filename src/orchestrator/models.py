@@ -20,7 +20,6 @@ class ConstraintValues:
 	Represents the values describing an ODRL constraint :
 	(operator, operand)
 	"""
-
 	operator: Operator
 	value: Operand
 
@@ -48,12 +47,11 @@ class OdrlConstraint(BaseModel):
 	unit: str | None = None
 	comment: str | None = None
 
-
 class OdrlRule(BaseModel):
 	assignee: str
 	target: str
 	action: str
-	constraint: list[OdrlConstraint] | None = None
+	constraints: list[OdrlConstraint] | None = None
 	comment: str | None = None
 
 

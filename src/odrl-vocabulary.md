@@ -38,12 +38,12 @@
 
 ## Constraints
 
-| **Constraints** | **Identification**          | **Description**                            |
-|:----------------|:----------------------------|:-------------------------------------------|
-| Latency         | `urn:constraint:latency`    | Minimum latency that can be requested      |
-| Encryption      | `urn:constraint:encryption` | Need to encrypt message or not             |
-| Frequency       | `urn:constraint:frequency`  | Minimum delay between successive calls     |
-| Flow rate       | `urn:constraint:flow-rate`  | Maximum flow rate allowed                  |
+| **Metrics** | **Identification**          | **Description**                        |
+|:------------|:----------------------------|:---------------------------------------|
+| Latency     | `urn:constraint:latency`    | Minimum latency that can be requested  |
+| Encryption  | `urn:constraint:encryption` | Need to encrypt message or not         |
+| Frequency   | `urn:constraint:frequency`  | Minimum delay between successive calls |
+| Flow rate   | `urn:constraint:flow-rate`  | Maximum flow rate allowed              |
 ---- MAYBE PLUS TARD ----
 | Bandwith        | `urn:constraint:bandwith`   | Maximum bandwith amount that can be filled |
 
@@ -57,6 +57,15 @@
 ---
 
 ## Actions 
+
+| **Actions**             | **Identification**                                           | **Description** |
+|:------------------------|:-------------------------------------------------------------|:----------------|
+| Increase engine torque  | `urn:action:longitudinal-monitoring:increase-engine-torque`  | Speed up        |
+| Decrease engine torque  | `urn:action:longitudinal-monitoring:decrease-engine-torque`  | Slow down       |
+| Increase brake pressure | `urn:action:longitudinal-monitoring:increase-brake-pressure` | Brake           |
+| Decrease brake pressure | `urn:action:longitudinal-monitoring:decrease-engine-torque`  | Stop braking    |
+| Nothing                 | `urn:action:longitudinal-monitoring:nothing`                 | Do nothing      |
+
 ```(à faire:)
 ### Contrôle longitudinal
 

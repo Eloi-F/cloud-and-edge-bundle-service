@@ -1,7 +1,7 @@
 from models import ConstraintSet, ConstraintValues, OdrlSet
 from pathlib import Path
 
-from parser import parse_policy_file, parse_policy
+from parser import parse_set_file, parse_set
 import logging as log
 
 TEMPLATE_FILE = "templates-check"
@@ -34,7 +34,7 @@ def build_limitations() -> ConstraintSet:
     for file in POLICY_DIRECTORY.iterdir():
         # Open and load every ODRL files except templates file
         if file.stem != TEMPLATE_FILE and file.suffix == ODRL_FILE_FORMAT:
-            service, constraint_dict = parse_policy_file(file)
+            service, constraint_dict = parse_set_file(file)
             add_constraints(resources_limits, service, constraint_dict)
 
     log.info("Successfully build orchestrator ConstraintSet limitations.")
@@ -52,7 +52,7 @@ def build_requested_constraints(request: OdrlSet) -> ConstraintSet:
     """
     resources_request: ConstraintSet = {}
 
-    service, constraint_dict = parse_policy(request)
+    service, constraint_dict = parse_set(request)
     add_constraints(resources_request, service, constraint_dict)
 
     log.info("Successfully build request ConstraintSet.")
