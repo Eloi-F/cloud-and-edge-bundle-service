@@ -1,4 +1,4 @@
-from models import ConstraintValues, Operator, Operand, ConstraintSet, OdrlConstraint
+from common.models import ConstraintValues, Operator, Operand, OdrlConstraint
 from math import inf
 from dataclasses import dataclass
 
@@ -79,7 +79,7 @@ def compare_constraints(
 
 
 def evaluate_request(
-	request: ConstraintSet, limits: ConstraintSet
+	request: RequestSet, limits: OrchestratorOfferSet
 ) -> tuple[bool, list[OdrlConstraint]]:
 	"""
 	Compare and tell if the request matches with current limitations.

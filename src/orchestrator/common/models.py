@@ -23,10 +23,10 @@ class ConstraintValues:
 	operator: Operator
 	value: Operand
 
+type ServerOfferSet = dict[str, dict[str, ConstraintValues]]
 
-type OfferSet = dict[str, dict[str, ConstraintValues]]
 """
-A typed dictionary of offered services by a server
+A typed dictionary of offered services by a server.
 	{
 		"service1": {
 			"metric1": (operator, operand),
@@ -35,6 +35,28 @@ A typed dictionary of offered services by a server
 		"service2": {...},
 		...
 	}
+"""
+type OrchestratorOfferSet = dict[str, ServerOfferSet]
+
+"""
+A typed dictionary of all offered services by a server
+that the orchestrator can distribute to any client.
+	{
+		"server1": ServerOfferSet1,
+		"server2": ServerOfferSet2,
+		...
+	}
+"""
+type OfferingServerDict = dict[str, str]
+
+"""
+A typed dictionary of all server connected to the 
+orchestrator and offering services.
+	{
+		"server1-id":"server1-url",
+		"server2-id":"server2-url",
+		...
+	}  
 """
 
 # Pydantic models
@@ -50,5 +72,5 @@ class OdrlRule(BaseModel):
 	assignee: str
 	target: str
 	action: str
-	constraints: list[OdrlConstraint] | None = None
+	constraint: list[OdrlConstraint] | None = None
 	comment: str | None = None

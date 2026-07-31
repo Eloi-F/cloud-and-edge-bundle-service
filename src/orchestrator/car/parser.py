@@ -1,4 +1,4 @@
-from models import ConstraintValues, OdrlRequest, OdrlGraph, OdrlOffer, ConstraintSet
+from car.models import ConstraintValues, OdrlRequest
 from pathlib import Path
 
 
@@ -7,24 +7,24 @@ def parse_set_file(policy_file: Path) -> tuple[str, dict[str, ConstraintValues]]
 	return parse_set(policy)
 
 
-def parse_set(policy: OdrlRequest) -> tuple[str, dict[str, ConstraintValues]]:
+def parse_set(request: OdrlRequest) -> tuple[str, dict[str, ConstraintValues]]:
 	"""
 	Parse a given policy file and return associated
 	service and a dict of its constraints.
 
-	:param policy:
+	:param request:
 	:return: tuple(service,constraint_dict)
 	"""
 	constraint_dict: dict[str, ConstraintValues] = {}
 
-	service = policy.duty.assignee.rsplit(":", 1)[-1]
+	service = request.permission[0].target.rsplit(":",1)[-1]
 
-	for constraint in policy.duty.constraints:
+	for metric in request.obligation[0].constraint:
 		# Parse constraint name
-		constraint_name = constraint.leftOperand.rsplit(":", 1)[-1]
+		metric_name = metric.leftOperand.rsplit(":", 1)[-1]
 
-		constraint_dict[constraint_name] = ConstraintValues(
-			constraint.operator, constraint.rightOperand
+		constraint_dict[metric_name] = ConstraintValues(
+			metric.operator, metric.rightOperand
 		)
 
 	return service, constraint_dict
