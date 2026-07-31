@@ -1,10 +1,13 @@
 import asyncio
 
-from models import (
+from common.models import (
 	OfferingServerDict,
 	OrchestratorOfferSet,
 	ServerOfferSet
 )
+
+import logging
+logger = logging.getLogger(__name__)
 
 def discover_topology() -> tuple[OrchestratorOfferSet, asyncio.Lock, OfferingServerDict, asyncio.Lock]:
 	"""
@@ -16,11 +19,12 @@ def discover_topology() -> tuple[OrchestratorOfferSet, asyncio.Lock, OfferingSer
 	Use a heartbeat approach.
 	:return: OFFERS, OFFERS_LOCKER, SERVERS, SERVERS_LOCKER
 	"""
+	logger.info(f"Connection to available servers complete.")
 	return {}, asyncio.Lock(), {}, asyncio.Lock()
+
 
 async def add_server(
 		server_dict: OfferingServerDict,
-		locker: asyncio.Lock,
 		server_id:str,
 		server_url:str
 	) -> OfferingServerDict :
@@ -29,19 +33,19 @@ async def add_server(
 	servers able to offer services.
 
 	:param server_dict:
-	:param locker:
 	:param server_id:
 	:param server_url:
 	:return: server_dict
 	"""
-	async with locker:
-		server_dict[server_id] = server_url
+	server_dict[server_id] = server_url
+
+	logger.info(f"Added %s (%s) to current servers offering host services register.", server_id, server_url)
 	return server_dict
+
 
 async def add_offer(
 		offer_dict: OrchestratorOfferSet,
-		locker: asyncio.Lock,
-		server: str,
+		server_id: str,
 		offer: ServerOfferSet
 	) -> OrchestratorOfferSet :
 	"""
@@ -49,11 +53,11 @@ async def add_offer(
 	in the global OrchestratorOfferSet variable.
 
 	:param offer_dict:
-	:param locker:
-	:param server:
+	:param server_id:
 	:param offer:
 	:return:
 	"""
-	async with locker:
-		offer_dict[server] = offer
+	offer_dict[server_id] = offer
+
+	logger.info(f"Added %s's offer to overall offers register.",server_id)
 	return offer_dict
