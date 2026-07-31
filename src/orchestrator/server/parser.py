@@ -7,13 +7,7 @@ from common.models import (
 	ServerOfferSet
 )
 
-# URN format example :
-# "urn:node:server"
-URN_SEPARATOR = ":"
-
-# URL format example :
-# "http://server-ip:port/service"
-URL_SEPARATOR = "/"
+from common.parser import parse_url, parse_urn
 
 def add_offer(offers_set: ServerOfferSet, offer: OdrlOffer) -> ServerOfferSet:
 	"""
@@ -24,9 +18,9 @@ def add_offer(offers_set: ServerOfferSet, offer: OdrlOffer) -> ServerOfferSet:
 	:return: offers_set
 	"""
 	for obligation in offer.obligation :
-		service =  obligation.target.rsplit(URL_SEPARATOR,1)[-1]
+		service =  parse_urn(obligation.target)
 		for constraint in obligation.constraint :
-			metric = constraint.leftOperand.rsplit(URN_SEPARATOR,1)[-1]
+			metric = parse_urn(constraint.leftOperand)
 			if service not in offers_set :
 				offers_set[service] = {}
 			offers_set[service][metric] = ConstraintValues(
@@ -42,8 +36,8 @@ def get_server_info(offer: OdrlOffer) -> tuple[str,str]:
 	:param offer:
 	:return: id,url
 	"""
-	server_id = offer.assigner.rsplit(":",1)[-1]
-	server_url = offer.permission[0].target.rsplit(URL_SEPARATOR,1)[0]
+	server_id = parse_urn(offer.assigner)
+	server_url = parse_url(offer.permission[0].target)
 
 	return server_id, server_url
 

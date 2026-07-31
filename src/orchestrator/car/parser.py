@@ -1,6 +1,7 @@
 from car.models import ConstraintValues, OdrlRequest
 from pathlib import Path
 
+from common.parser import parse_urn
 
 def parse_set_file(policy_file: Path) -> tuple[str, dict[str, ConstraintValues]]:
 	policy = OdrlRequest.model_validate_json(policy_file.read_text(encoding="utf-8"))
@@ -17,11 +18,11 @@ def parse_set(request: OdrlRequest) -> tuple[str, dict[str, ConstraintValues]]:
 	"""
 	constraint_dict: dict[str, ConstraintValues] = {}
 
-	service = request.permission[0].target.rsplit(":",1)[-1]
+	service = parse_urn(request.permission[0].target)
 
 	for metric in request.obligation[0].constraint:
 		# Parse constraint name
-		metric_name = metric.leftOperand.rsplit(":", 1)[-1]
+		metric_name = parse_urn(metric.leftOperand)
 
 		constraint_dict[metric_name] = ConstraintValues(
 			metric.operator, metric.rightOperand
