@@ -28,5 +28,5 @@ def setup_logging():
     root = logging.getLogger()
     root.handlers.clear()
     root.addHandler(handler)
-    root.setLevel(logging.INFO)
+    root.setLevel(logging.DEBUG)
 

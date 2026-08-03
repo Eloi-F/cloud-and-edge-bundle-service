@@ -23,7 +23,6 @@ app = FastAPI(title="Orchestrator API", version="1.0.0")
 topology = TopologyRegistry()
 
 
-
 @app.get("/")
 def root():
 	logger.info("Received call on root.")
@@ -47,18 +46,18 @@ async def handle_offer(offer: OdrlGraph):
 	await topology.register_server(server_id,server_url)
 	await topology.register_offer(server_id,server_offer)
 
-	return
+	return {"code": 200}
 
 
 def serialize_response(request: OdrlRequest, server: str) -> OdrlAgreement:
 	agreement = OdrlAgreement.model_validate(
-		request.model_dump(by_alias=False) | {"type": "Agreement"}
+		request.model_dump(by_alias=True) | {"@type": "Agreement"}
 	)
 	agreement.obligation[0].assignee = URN_ASSIGNEE + URN_SEP + server
 	return agreement
 
 @app.post("/demand")
-def handle_requests(request: OdrlRequest):
+async def handle_requests(request: OdrlRequest):
 	"""
 	POST orchestrator-side endpoint exposed to clients.
 	Expect ODRL policy input format, asking for service resources allocations.
@@ -69,11 +68,12 @@ def handle_requests(request: OdrlRequest):
 	"""
 	logger.info("Received new client request.")
 	request_set = parse_request(request)
-	capable_servers = topology.build_capable_servers(request_set)
+	capable_servers = await topology.build_capable_servers(request_set)
 	if capable_servers == {}:
 		return {"code": 404}
 	else:
-		return serialize_response(request,topology.most_suitable_server(capable_servers))
+		suitable_server = await topology.most_suitable_server(capable_servers)
+		return serialize_response(request,suitable_server)
 
 
 

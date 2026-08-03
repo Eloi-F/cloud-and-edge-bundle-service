@@ -8,8 +8,8 @@ URL_SEPARATOR = "/"
 
 def parse_urn(field: str) -> str:
 	"""Get payload from urn field in ODRL policies."""
-	return field.rsplit("URN_SEPARATOR",1)[-1]
+	return field.rsplit(URN_SEPARATOR,1)[-1]
 
-def parse_url(field: str) -> str:
+def parse_url(field: str, count: int = 1) -> str:
 	"""Get payload from url field in ODRL policies."""
-	return field.rsplit("URL_SEPARATOR",1)[-1]
+	return field.rsplit(URL_SEPARATOR,count)[-count]

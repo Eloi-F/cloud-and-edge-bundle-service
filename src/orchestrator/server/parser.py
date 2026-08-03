@@ -21,7 +21,7 @@ def add_offer(offers_set: ServerOfferSet, offer: OdrlOffer) -> ServerOfferSet:
 	:return: offers_set
 	"""
 	for obligation in offer.obligation :
-		service =  parse_urn(obligation.target)
+		service =  parse_url(obligation.target)
 
 		for constraint in obligation.constraint :
 			metric = parse_urn(constraint.leftOperand)
@@ -44,7 +44,7 @@ def get_server_info(offer: OdrlOffer) -> tuple[str,str]:
 	:return: id,url
 	"""
 	server_id = parse_urn(offer.assigner)
-	server_url = parse_url(offer.permission[0].target)
+	server_url = parse_url(offer.permission[0].target,2)
 
 	logger.debug("Parsed id (%s) and url (%s) from received offer.",server_id,server_url)
 	return server_id, server_url

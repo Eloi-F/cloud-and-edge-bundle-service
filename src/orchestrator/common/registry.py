@@ -1,11 +1,11 @@
-from models import (
+from common.models import (
 	OrchestratorOfferSet,
 	OfferingServerDict,
 	ServerOfferSet,
 	RequestSet
 )
 import asyncio
-from evaluator import compare_constraints
+from common.evaluator import compare_constraints
 
 import logging
 logger = logging.getLogger(__name__)
@@ -133,5 +133,5 @@ class TopologyRegistry:
 		return result
 
 
-	async def most_suitable_server(self):
-		pass
+	async def most_suitable_server(self, capable: OrchestratorOfferSet) -> str:
+		return next(iter(capable))

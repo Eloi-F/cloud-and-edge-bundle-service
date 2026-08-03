@@ -76,13 +76,6 @@ orchestrator and offering services.
 
 # Pydantic models
 
-class BaseOdrlModel(BaseModel):
-	"""Common type for ODRL requests and agreements"""
-	context: str = Field(alias="@context")
-	uid: str
-	permission: list[OdrlRule]
-	obligation: list[OdrlRule]
-
 class OdrlConstraint(BaseModel):
 	leftOperand: str
 	operator: Operator
@@ -96,3 +89,10 @@ class OdrlRule(BaseModel):
 	action: str
 	constraint: list[OdrlConstraint] | None = None
 	comment: str | None = None
+
+class BaseOdrlModel(BaseModel):
+	"""Common type for ODRL requests and agreements"""
+	context: str = Field(alias="@context")
+	uid: str
+	permission: list[OdrlRule]
+	obligation: list[OdrlRule]
