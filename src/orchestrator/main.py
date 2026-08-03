@@ -72,7 +72,7 @@ async def handle_requests(request: OdrlRequest):
 	if capable_servers == {}:
 		return {"code": 404}
 	else:
-		suitable_server = await topology.most_suitable_server(capable_servers)
+		suitable_server = await most_suitable_server(capable_servers)
 		return serialize_response(request,suitable_server)
 
 

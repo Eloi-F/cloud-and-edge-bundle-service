@@ -98,3 +98,29 @@ def compare_constraints(
 		logger.debug("Comparing boolean values from request (%s) and server (%s). Result = %s.",
 		             req_constraint.value,orch_constraint.value,result)
 		return result
+
+
+def compute_relative_gap(
+	requested: ConstraintValues,
+	offered: ConstraintValues
+) -> float:
+	"""
+	Compute the relative slack (excess capacity) that
+	an  offer provides beyond what a request needs.
+	/!\ Assumes the offer already satisfies the request.
+
+	:param requested:
+	:param offered:
+	:return: relative slack, >= 0
+	"""
+	if isinstance(requested.value, bool) or requested.operator is Operator.EQ:
+		return 0.0
+
+	req_value = float(requested.value)
+	offer_value = float(offered.value)
+
+	# Avoid division by zero
+	if req_value == 0.0:
+		return abs(offer_value - req_value)
+
+	return abs(offer_value - req_value) / req_value

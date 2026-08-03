@@ -5,10 +5,45 @@ from common.models import (
 	RequestSet
 )
 import asyncio
-from common.evaluator import compare_constraints
+from common.evaluator import compare_constraints, compute_relative_gap
+from math import inf
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+def most_suitable_server(
+		request_set: RequestSet,
+		capable_servers: OrchestratorOfferSet,
+) -> str:
+	"""
+	Among capable servers, Select the server whose offer is
+	"just enough" to satisfy the request using relative gap
+
+	:param request_set:
+	:param capable_servers:
+	:return: server_id of the most suitable server
+	"""
+	best_server: str | None = None
+	best_score = inf
+
+	for server_id, server_offer in capable_servers.items():
+		worst_slack = 0.0
+
+		for service, metrics in request_set.items():
+			for metric, requested in metrics.items():
+				offered = server_offer[service][metric]
+				slack = compute_relative_gap(requested, offered)
+				worst_slack = max(worst_slack, slack)
+
+		logger.debug("Server %s worst-case relative slack : %.4f", server_id, worst_slack)
+
+		if worst_slack < best_score:
+			best_score = worst_slack
+			best_server = server_id
+
+	logger.info("Selected %s as most suitable server (max relative slack = %.4f).", best_server, best_score)
+	return best_server
 
 
 class TopologyRegistry:
@@ -133,5 +168,3 @@ class TopologyRegistry:
 		return result
 
 
-	async def most_suitable_server(self, capable: OrchestratorOfferSet) -> str:
-		return next(iter(capable))
