@@ -1,31 +1,34 @@
-from car.models import ConstraintValues, OdrlRequest
+from car.models import OdrlRequest
+from common.models import RequestSet, ConstraintValues
 from pathlib import Path
 
 from common.parser import parse_urn
 
-def parse_set_file(policy_file: Path) -> tuple[str, dict[str, ConstraintValues]]:
+def parse_set_file(policy_file: Path) -> RequestSet:
+	"""Parse a request ODRL policy from a JSON file."""
 	policy = OdrlRequest.model_validate_json(policy_file.read_text(encoding="utf-8"))
-	return parse_set(policy)
+	return parse_request(policy)
 
 
-def parse_set(request: OdrlRequest) -> tuple[str, dict[str, ConstraintValues]]:
+def parse_request(request: OdrlRequest) -> RequestSet:
 	"""
-	Parse a given policy file and return associated
-	service and a dict of its constraints.
+	Parse a given policy and return associated
+	ConstraintSet.
 
 	:param request:
 	:return: tuple(service,constraint_dict)
 	"""
-	constraint_dict: dict[str, ConstraintValues] = {}
 
 	service = parse_urn(request.permission[0].target)
+	request_set: RequestSet = {service: {}}
 
 	for metric in request.obligation[0].constraint:
 		# Parse constraint name
 		metric_name = parse_urn(metric.leftOperand)
 
-		constraint_dict[metric_name] = ConstraintValues(
-			metric.operator, metric.rightOperand
+		request_set[service][metric_name] = ConstraintValues(
+			metric.operator,
+			metric.rightOperand
 		)
 
-	return service, constraint_dict
+	return request_set

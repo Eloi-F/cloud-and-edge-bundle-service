@@ -23,8 +23,23 @@ class ConstraintValues:
 	operator: Operator
 	value: Operand
 
-type ServerOfferSet = dict[str, dict[str, ConstraintValues]]
+type RequestSet = dict[str, dict[str, ConstraintValues]]
+"""
+A typed dictionary representing a client request.
+Used to find the most appropriate server offering
+what the client seeks.
+(Same type as OfferSet)
+	{
+		"service1": {
+			"metric1": (operator, operand),
+			"metric2": (operator, operand),
+		}
+		"service2": {...},
+		...
+	}
+"""
 
+type ServerOfferSet = dict[str, dict[str, ConstraintValues]]
 """
 A typed dictionary of offered services by a server.
 	{
@@ -36,8 +51,8 @@ A typed dictionary of offered services by a server.
 		...
 	}
 """
-type OrchestratorOfferSet = dict[str, ServerOfferSet]
 
+type OrchestratorOfferSet = dict[str, ServerOfferSet]
 """
 A typed dictionary of all offered services by a server
 that the orchestrator can distribute to any client.
@@ -47,8 +62,8 @@ that the orchestrator can distribute to any client.
 		...
 	}
 """
-type OfferingServerDict = dict[str, str]
 
+type OfferingServerDict = dict[str, str]
 """
 A typed dictionary of all server connected to the 
 orchestrator and offering services.

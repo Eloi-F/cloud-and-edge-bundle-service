@@ -1,16 +1,14 @@
-import json
 import uvicorn
 from fastapi import FastAPI
 
-from server.builder import discover_topology, add_server, add_offer
-from server.parser import parse_graph
+from common.registry import TopologyRegistry
 
-from common.models import OdrlConstraint
+from car.parser import parse_request
+from car.models import OdrlRequest, OdrlAgreement
+
+from server.parser import parse_offer
 from server.models import OdrlGraph
-from car.models import OdrlRequest
 
-from car.builder import build_request_payload
-from car.constraints_evaluator import evaluate_request
 
 import logging
 from logging_config import setup_logging
@@ -18,18 +16,22 @@ from logging_config import setup_logging
 logger = logging.getLogger(__name__)
 setup_logging()
 
+URN_ASSIGNEE = "urn:node"
+URN_SEP = ":"
+
 app = FastAPI(title="Orchestrator API", version="1.0.0")
-OFFERS, OFFERS_LOCKER, SERVERS, SERVERS_LOCKER = discover_topology()
+topology = TopologyRegistry()
+
 
 
 @app.get("/")
 def root():
-	logger.warning("T'es qui toi ?")
+	logger.info("Received call on root.")
 	return {"message": "Orchestrator API"}
 
 
 @app.post("/server")
-async def handler_offer(offer: OdrlGraph):
+async def handle_offer(offer: OdrlGraph):
 	"""
 	POST orchestrator-side endpoint exposed to servers.
 	Expect ODRL policy input format, offering services host under constraints.
@@ -39,19 +41,21 @@ async def handler_offer(offer: OdrlGraph):
 	:param offer:
 	:return:
 	"""
-	server_id, server_url, server_offer = parse_graph(offer)
+	logger.info("Received new client request.")
+	server_id, server_url, server_offer = parse_offer(offer)
 
-	async with SERVERS_LOCKER:
-		await add_server(SERVERS,server_id,server_url)
-
-	async with OFFERS_LOCKER:
-		await add_offer(OFFERS, server_id, server_offer)
+	await topology.register_server(server_id,server_url)
+	await topology.register_offer(server_id,server_offer)
 
 	return
 
 
-def serialize_response(result: tuple[bool, list[OdrlConstraint]]):
-	return json.dumps({"result": result[0], "reason": result[1]})
+def serialize_response(request: OdrlRequest, server: str) -> OdrlAgreement:
+	agreement = OdrlAgreement.model_validate(
+		request.model_dump(by_alias=False) | {"type": "Agreement"}
+	)
+	agreement.obligation[0].assignee = URN_ASSIGNEE + URN_SEP + server
+	return agreement
 
 @app.post("/demand")
 def handle_requests(request: OdrlRequest):
@@ -63,9 +67,14 @@ def handle_requests(request: OdrlRequest):
 	:param request:
 	:return: response
 	"""
-	payload_request = build_request_payload(request)
-	result = evaluate_request(payload_request, OFFERS)
-	return serialize_response(result)
+	logger.info("Received new client request.")
+	request_set = parse_request(request)
+	capable_servers = topology.build_capable_servers(request_set)
+	if capable_servers == {}:
+		return {"code": 404}
+	else:
+		return serialize_response(request,topology.most_suitable_server(capable_servers))
+
 
 
 if __name__ == "__main__":

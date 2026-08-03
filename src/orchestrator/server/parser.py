@@ -7,6 +7,9 @@ from common.models import (
 	ServerOfferSet
 )
 
+import logging
+logger = logging.getLogger(__name__)
+
 from common.parser import parse_url, parse_urn
 
 def add_offer(offers_set: ServerOfferSet, offer: OdrlOffer) -> ServerOfferSet:
@@ -19,14 +22,18 @@ def add_offer(offers_set: ServerOfferSet, offer: OdrlOffer) -> ServerOfferSet:
 	"""
 	for obligation in offer.obligation :
 		service =  parse_urn(obligation.target)
+
 		for constraint in obligation.constraint :
 			metric = parse_urn(constraint.leftOperand)
+
 			if service not in offers_set :
 				offers_set[service] = {}
 			offers_set[service][metric] = ConstraintValues(
 				constraint.operator,
 				constraint.rightOperand
 			)
+			logger.debug("Added %s %s to set of offers.",service,metric)
+
 	return offers_set
 
 def get_server_info(offer: OdrlOffer) -> tuple[str,str]:
@@ -39,6 +46,7 @@ def get_server_info(offer: OdrlOffer) -> tuple[str,str]:
 	server_id = parse_urn(offer.assigner)
 	server_url = parse_url(offer.permission[0].target)
 
+	logger.debug("Parsed id (%s) and url (%s) from received offer.",server_id,server_url)
 	return server_id, server_url
 
 
@@ -55,9 +63,10 @@ def parse_offer_list(odrl_offers:list[OdrlOffer]) -> tuple[str,str,ServerOfferSe
 	for offer in odrl_offers :
 		add_offer(offers_set, offer)
 
+	logger.info("Parsed new offer from %s (%s).",server_id, server_url)
 	return server_id, server_url, offers_set
 
 
-def parse_graph(graph: OdrlGraph) -> tuple[str,str,ServerOfferSet]:
+def parse_offer(graph: OdrlGraph) -> tuple[str,str,ServerOfferSet]:
 	"""Parse a received graph from a server"""
 	return parse_offer_list(graph.graph)
