@@ -1,8 +1,10 @@
 from car.models import OdrlRequest
+from common.parser import parse_urn
 from common.models import RequestSet, ConstraintValues
 from pathlib import Path
 
-from common.parser import parse_urn
+import logging
+logger = logging.getLogger(__name__)
 
 def parse_set_file(policy_file: Path) -> RequestSet:
 	"""Parse a request ODRL policy from a JSON file."""
@@ -30,5 +32,6 @@ def parse_request(request: OdrlRequest) -> RequestSet:
 			metric.operator,
 			metric.rightOperand
 		)
+		logger.info("Parsed new request from client.")
 
 	return request_set

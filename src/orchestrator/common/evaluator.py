@@ -2,6 +2,8 @@ from common.models import ConstraintValues, Operator, Operand
 from math import inf
 from dataclasses import dataclass
 
+import logging
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class Interval:
@@ -14,6 +16,17 @@ class Interval:
 	lower_inclusive: bool
 	upper_value: float
 	upper_inclusive: bool
+
+	def __repr__(self):
+		start_bracket: str
+		end_bracket: str
+
+		if self.lower_inclusive : start_bracket = '['
+		else: start_bracket = ']'
+
+		if self.upper_inclusive : end_bracket = ']'
+		else : end_bracket = '['
+		return f"{start_bracket}{self.lower_value}:{self.upper_value}{end_bracket}"
 
 	def lower_key(self) -> tuple[float, int]:
 		"""Transform a lower value into a tuple (value, epsilon),
@@ -69,9 +82,19 @@ def compare_constraints(
 	"""
 	# Currently not possible to have anything else than int float or bool
 	# Will maybe change in the future if a constraint needs a str value
+	result: bool
+
 	if isinstance(req_constraint.value,int) or isinstance(req_constraint.value,float) :
 		req_interval = to_interval(req_constraint.value, req_constraint.operator)
 		orch_interval = to_interval(orch_constraint.value, orch_constraint.operator)
-		return req_interval.overlaps(orch_interval)
-	else:
-		return req_constraint.value == orch_constraint.value
+
+		result = req_interval.overlaps(orch_interval)
+		logger.debug("Checking if request interval (%s) overlaps with server's (%s) : %s",
+		             req_interval, orch_interval, result)
+		return result
+
+	else: # bool case
+		result = req_constraint.value == orch_constraint.value
+		logger.debug("Comparing boolean values from request (%s) and server (%s). Result = %s.",
+		             req_constraint.value,orch_constraint.value,result)
+		return result

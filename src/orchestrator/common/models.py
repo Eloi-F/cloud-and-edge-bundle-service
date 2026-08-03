@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 Operand = int | float | bool
@@ -75,6 +75,13 @@ orchestrator and offering services.
 """
 
 # Pydantic models
+
+class BaseOdrlModel(BaseModel):
+	"""Common type for ODRL requests and agreements"""
+	context: str = Field(alias="@context")
+	uid: str
+	permission: list[OdrlRule]
+	obligation: list[OdrlRule]
 
 class OdrlConstraint(BaseModel):
 	leftOperand: str

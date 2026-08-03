@@ -5,9 +5,9 @@ from models import (
 	RequestSet
 )
 import asyncio
-import logging
 from evaluator import compare_constraints
 
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -30,7 +30,7 @@ class TopologyRegistry:
 		server offering services
 		Use a heartbeat approach.
 		"""
-		logger.info(f"Connection to available servers complete.")
+		logger.info("Connection to available servers complete.")
 		self.offers = {}
 		self.offers_locker = asyncio.Lock()
 		self.servers = {}
@@ -89,16 +89,20 @@ class TopologyRegistry:
 		service: str = list(request)[0]
 
 		# Check only if they propose the service
-
 		if not service in self.offers[server] : return False
 
 		# Check every metric asked by the client
 		for metric in request[service]:
-			if not (metric in self.offers[server][service] and compare_constraints(
+			include = metric in self.offers[server][service]
+			logger.debug("Checking whether %s is in %s : %s",
+			             metric, self.offers[server][service], include)
+			if not (include and compare_constraints(
 					request[service][metric],
 					self.offers[server][service][metric]
 			)):
+				logger.debug("-> Server is not capable to handle client needs.")
 				return False
+		logger.debug("-> Server is capable to handle client needs.")
 		return True
 
 
@@ -124,7 +128,10 @@ class TopologyRegistry:
 				result[server] = self.offers[server]
 
 		await self.unlock_offers()
+
+		logger.info("Built dict of servers capable of handling client request.")
 		return result
+
 
 	async def most_suitable_server(self):
 		pass
