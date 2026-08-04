@@ -63,7 +63,7 @@ def parse_offer_list(odrl_offers:list[OdrlOffer]) -> tuple[str,str,ServerOfferSe
 	for offer in odrl_offers :
 		add_offer(offers_set, offer)
 
-	logger.info("Parsed new offer from %s (%s).",server_id, server_url)
+	logger.debug("Parsed new offer from %s (%s).",server_id, server_url)
 	return server_id, server_url, offers_set
 
 

@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from common.registry import TopologyRegistry
+from common.registry import TopologyRegistry, most_suitable_server
 
 from car.parser import parse_request
 from car.models import OdrlRequest, OdrlAgreement
@@ -40,7 +40,7 @@ async def handle_offer(offer: OdrlGraph):
 	:param offer:
 	:return:
 	"""
-	logger.info("Received new client request.")
+	logger.info("Received new server offer.")
 	server_id, server_url, server_offer = parse_offer(offer)
 
 	await topology.register_server(server_id,server_url)
@@ -70,9 +70,10 @@ async def handle_requests(request: OdrlRequest):
 	request_set = parse_request(request)
 	capable_servers = await topology.build_capable_servers(request_set)
 	if capable_servers == {}:
+		logger.warning("No servers capable to handle client request. Sending back code 404.")
 		return {"code": 404}
 	else:
-		suitable_server = await most_suitable_server(capable_servers)
+		suitable_server = most_suitable_server(request_set, capable_servers)
 		return serialize_response(request,suitable_server)
 
 

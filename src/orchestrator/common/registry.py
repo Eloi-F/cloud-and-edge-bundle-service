@@ -4,9 +4,9 @@ from common.models import (
 	ServerOfferSet,
 	RequestSet
 )
-import asyncio
 from common.evaluator import compare_constraints, compute_relative_gap
 from math import inf
+import asyncio
 
 import logging
 logger = logging.getLogger(__name__)
@@ -28,21 +28,21 @@ def most_suitable_server(
 	best_score = inf
 
 	for server_id, server_offer in capable_servers.items():
-		worst_slack = 0.0
+		worst_gap = 0.0
 
 		for service, metrics in request_set.items():
 			for metric, requested in metrics.items():
 				offered = server_offer[service][metric]
-				slack = compute_relative_gap(requested, offered)
-				worst_slack = max(worst_slack, slack)
+				gap = compute_relative_gap(requested, offered)
+				worst_gap = max(worst_gap, gap)
 
-		logger.debug("Server %s worst-case relative slack : %.4f", server_id, worst_slack)
+		logger.debug("Server %s worst-case relative gap : %.4f", server_id, worst_gap)
 
-		if worst_slack < best_score:
-			best_score = worst_slack
+		if worst_gap < best_score:
+			best_score = worst_gap
 			best_server = server_id
 
-	logger.info("Selected %s as most suitable server (max relative slack = %.4f).", best_server, best_score)
+	logger.info("Selected %s as most suitable server (max relative gap = %.4f).", best_server, best_score)
 	return best_server
 
 
@@ -110,7 +110,7 @@ class TopologyRegistry:
 	        server: str,
 			request: RequestSet
 	) -> bool:
-		"""
+		r"""
 		Check if a server is able to handle needs of a
 		client request based on the metrics it proposes.
 		/!\ SHOULD BE CALLED FROM AN ASYNC FUNCTION.

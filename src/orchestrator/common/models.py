@@ -23,6 +23,9 @@ class ConstraintValues:
 	operator: Operator
 	value: Operand
 
+	def __repr__(self):
+		return f"{self.operator.value} {self.value}"
+
 type RequestSet = dict[str, dict[str, ConstraintValues]]
 """
 A typed dictionary representing a client request.

@@ -32,6 +32,6 @@ def parse_request(request: OdrlRequest) -> RequestSet:
 			metric.operator,
 			metric.rightOperand
 		)
-		logger.info("Parsed new request from client.")
+		logger.debug("Parsed new request from client.")
 
 	return request_set
