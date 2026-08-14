@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class IdentificationRequest(BaseModel):
     image: str  # Base64-encoded image
+    metadata: dict
 
 
 class BoundingBox(BaseModel):

@@ -1,0 +1,55 @@
+{
+    "@context":
+    [
+        "http://www.w3.org/ns/odrl.jsonld",
+        {
+            "ex": "http://example.com/",
+            "xsd": "http://www.w3.org/2001/XMLSchema#"
+        }
+    ],
+    "@type": "Set",
+    "uid": "http://example.com/policy/identification-001",
+    "permission":
+    [
+        {
+            "action": "use",
+            "target": "ex:identification",
+            "constraint":
+            [
+                {
+                    "leftOperand": "ex:firmwareVersion",
+                    "operator": "gteq",
+                    "rightOperand":
+                    {
+                        "@value": "4.0",
+                        "@type": "xsd:decimal"
+                    }
+                }
+            ],
+            "duty":
+            [
+                {
+                    "action":
+                    [
+                        {
+                            "rdf:value": "distribute",
+                            "refinement":
+                            [
+                                {
+                                    "leftOperand": "ex:recipient",
+                                    "operator": "eq",
+                                    "rightOperand": "dataset"
+                                },
+                                {
+                                    "leftOperand": "ex:event",
+                                    "operator": "eq",
+                                    "rightOperand": "endOfUsage"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
