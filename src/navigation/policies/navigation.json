@@ -1,28 +1,58 @@
 {
-    "@context": "http://www.w3.org/ns/odrl.jsonld",
-    "@type": "Offer",
-    "uid": "urn:offer:service:navigation",
-    "assigner": "urn:node:{{NODE_ID}}",
+    "@context":
+    [
+        "http://www.w3.org/ns/odrl.jsonld",
+        {
+            "ex": "http://example.com/",
+            "xsd": "http://www.w3.org/2001/XMLSchema#"
+        }
+    ],
+    "@type": "Set",
+    "uid": "http://example.com/policy/hdmaps-001",
     "permission":
     [
         {
-            "target": "{{BASE_URL}}/trajectory_planning",
-            "assignee": "urn:client:any",
-            "action": "use"
-        }
-    ],
-    "obligation":
-    [
-        {
-            "target": "{{BASE_URL}}/trajectory_planning",
-            "assignee": "urn:node:{{NODE_ID}}",
-            "action": "urn:action:guarantee",
+            "action": "use",
+            "target": "ex:hdmaps",
             "constraint":
             [
                 {
-                    "leftOperand": "urn:metric:encryption",
+                    "leftOperand": "ex:location",
                     "operator": "eq",
-                    "rightOperand": true
+                    "rightOperand": "France"
+                },
+                {
+                    "leftOperand": "ex:firmwareVersion",
+                    "operator": "gteq",
+                    "rightOperand":
+                    {
+                        "@value": "4.4",
+                        "@type": "xsd:decimal"
+                    }
+                }
+            ],
+            "duty":
+            [
+                {
+                    "action":
+                    [
+                        {
+                            "rdf:value": "distribute",
+                            "refinement":
+                            [
+                                {
+                                    "leftOperand": "ex:recipient",
+                                    "operator": "eq",
+                                    "rightOperand": "aggregator"
+                                },
+                                {
+                                    "leftOperand": "ex:event",
+                                    "operator": "eq",
+                                    "rightOperand": "endOfUsage"
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         }
