@@ -1,31 +1,13 @@
 {
-    "@context":
-    [
-        "http://www.w3.org/ns/odrl.jsonld",
-        {
-            "ex": "http://example.com/",
-            "xsd": "http://www.w3.org/2001/XMLSchema#"
-        }
-    ],
-    "@type": "Set",
-    "uid": "http://example.com/policy/decision-001",
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@type": "Request",
+    "uid": "urn:policy:coordination:cap-4",
     "permission":
     [
         {
-            "action": "use",
-            "target": "ex:decision",
-            "constraint":
-            [
-                {
-                    "leftOperand": "ex:firmwareVersion",
-                    "operator": "gteq",
-                    "rightOperand":
-                    {
-                        "@value": "3.0",
-                        "@type": "xsd:decimal"
-                    }
-                }
-            ]
+            "assignee": "urn:capacity:cap-4",
+            "action": "urn:action:compute-behaviour",
+            "target": "urn:data:input"
         }
     ]
 }

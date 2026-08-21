@@ -9,6 +9,17 @@
 | Offer        | `urn:offer:service`     | Server offering service hosting                                   |
 | Agreement    | `urn:agreement:service` | Acknowledgment between client and server send by the orchestrator |
 
+## Capacities
+
+| **Capacities** | **Identification**   | **Description**    |
+|:---------------|:---------------------|:-------------------|
+| Capacity 1     | `urn:capacity:cap-1` | Receive video flow |
+| Capacity 2     | `urn:capacity:cap-2` | AI recognition     |
+| Capacity 3     | `urn:capacity:cap-3` | Data storage       |
+| Capacity 4     | `urn:capacity:cap-4` | Route calculation  |
+| Capacity 5     | `urn:capacity:cap-5` | Compute behaviour  |
+| Capacity 6     | `urn:capacity:cap-6` | Aggregate          |
+
 ## Services
 
 | **Services**   | **Identification**           | **Description**                      |

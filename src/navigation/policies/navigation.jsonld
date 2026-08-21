@@ -1,58 +1,19 @@
 {
-    "@context":
-    [
-        "http://www.w3.org/ns/odrl.jsonld",
-        {
-            "ex": "http://example.com/",
-            "xsd": "http://www.w3.org/2001/XMLSchema#"
-        }
-    ],
-    "@type": "Set",
-    "uid": "http://example.com/policy/hdmaps-001",
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@type": "Request",
+    "uid": "urn:policy:coordination:cap-4-cap-6",
     "permission":
     [
         {
-            "action": "use",
-            "target": "ex:hdmaps",
-            "constraint":
-            [
-                {
-                    "leftOperand": "ex:location",
-                    "operator": "eq",
-                    "rightOperand": "France"
-                },
-                {
-                    "leftOperand": "ex:firmwareVersion",
-                    "operator": "gteq",
-                    "rightOperand":
-                    {
-                        "@value": "4.4",
-                        "@type": "xsd:decimal"
-                    }
-                }
-            ],
+            "assignee": "urn:capacity:cap-4",
+            "action": "urn:action:compute-route",
+            "target": "urn:data:input",
+            "output": "urn:data:cap-4-output",
             "duty":
             [
                 {
-                    "action":
-                    [
-                        {
-                            "rdf:value": "distribute",
-                            "refinement":
-                            [
-                                {
-                                    "leftOperand": "ex:recipient",
-                                    "operator": "eq",
-                                    "rightOperand": "aggregator"
-                                },
-                                {
-                                    "leftOperand": "ex:event",
-                                    "operator": "eq",
-                                    "rightOperand": "endOfUsage"
-                                }
-                            ]
-                        }
-                    ]
+                    "action": "odrl:nextPolicy",
+                    "target": "urn:capacity:cap-6"
                 }
             ]
         }
