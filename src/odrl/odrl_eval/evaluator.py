@@ -113,9 +113,17 @@ class ODRLEvaluator:
 
     def _parse_policy(self, graph):
         def build_struct(node):
+            node_id = str(node)
+            conditions = self._extract_rule_components(graph, node)
+
+            if isinstance(node, rdflib.URIRef):
+                conditions.append(
+                    ["http://www.w3.org/ns/odrl/2/uid", str(ODRL.eq), node_id]
+                )
+
             return {
-                "id": str(uuid.uuid4()),
-                "conditions": self._extract_rule_components(graph, node),
+                "uid": node_id,
+                "conditions": conditions,
                 "duties": [build_struct(d) for d in graph.objects(node, ODRL.duty)],
                 "consequences": [
                     build_struct(c) for c in graph.objects(node, ODRL.consequence)

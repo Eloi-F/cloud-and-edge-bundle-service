@@ -7,7 +7,7 @@
         {
             "assignee": "urn:capacity:cap-4",
             "action": "urn:action:compute-behaviour",
-            "target": "urn:data:input"
+            "uid": "urn:data:input"
         }
     ]
 }

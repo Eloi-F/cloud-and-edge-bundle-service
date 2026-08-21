@@ -13,7 +13,7 @@
             [
                 {
                     "action": "odrl:nextPolicy",
-                    "target": "urn:capacity:cap-6"
+                    "uid": "urn:capacity:cap-6"
                 }
             ]
         }

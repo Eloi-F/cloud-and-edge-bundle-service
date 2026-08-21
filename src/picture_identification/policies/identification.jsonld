@@ -13,11 +13,11 @@
             [
                 {
                     "action": "odrl:nextPolicy",
-                    "target": "urn:capacity:cap-3"
+                    "uid": "urn:capacity:cap-3"
                 },
                 {
                     "action": "odrl:nextPolicy",
-                    "target": "urn:capacity:cap-4"
+                    "uid": "urn:capacity:cap-4"
                 }
             ]
         }
