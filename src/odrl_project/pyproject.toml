@@ -7,4 +7,4 @@ name = "odrl-package"
 version = "0.1.0"
 
 [tool.setuptools]
-packages = ["pep", "odrl_eval"]
+packages = ["odrl", "odrl.pep", "odrl.odrl_eval"]

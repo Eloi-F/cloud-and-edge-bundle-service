@@ -5,10 +5,6 @@ import rdflib
 from rdflib.collection import Collection
 from rdflib.namespace import RDF
 from dateutil import parser
-import datetime
-import uuid
-
-import pep
 
 ODRL = rdflib.Namespace("http://www.w3.org/ns/odrl/2/")
 
