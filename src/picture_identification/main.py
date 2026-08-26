@@ -5,16 +5,23 @@ from fastapi import FastAPI
 
 from app.api.schemas import IdentificationRequest, IdentificationResponse
 from app.core.identification_logic import identify_objects
-from odrl.pep.enforcer import enforce_odrl_policy
+from odrl.pep.enforcer import verify_permissions, enforce_duties
 
 app = FastAPI()
 
 
 @app.post("/identification", response_model=IdentificationResponse)
 def identification(data: IdentificationRequest):
-    enforce_odrl_policy(data.metadata)
+    history, pending_duties = verify_permissions(data.metadata)
 
     detections = identify_objects(data.image)
+
+    enforce_duties(
+        history=history,
+        duties=pending_duties,
+        payload=IdentificationResponse(detections=detections),
+    )
+
     return IdentificationResponse(detections=detections)
 
 

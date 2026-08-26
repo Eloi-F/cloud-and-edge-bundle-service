@@ -5,16 +5,22 @@ from fastapi import FastAPI
 from app.api.schemas import DecisionRequest, DecisionResponse
 
 from app.core.speed_logic import calculate_speed
-from odrl.pep.enforcer import enforce_odrl_policy
+from odrl.pep.enforcer import verify_permissions, enforce_duties
 
 app = FastAPI()
 
 
 @app.post("/decision", response_model=DecisionResponse)
 def decision_endpoint(data: DecisionRequest):
-    enforce_odrl_policy(data.metadata)
+    history, pending_duties = verify_permissions(data.metadata)
 
-    speed = calculate_speed(data.front, data.state)
+    payload = {"image": DecisionRequest.image, "metadata": {"version": 1.0}}
+
+    ia_recognition = enforce_duties(
+        history=history, duties=pending_duties, payload=payload
+    ).get("urn:capacity:identification")
+
+    speed = calculate_speed(data.front, data.state, ia_recognition)
     return DecisionResponse(speed=speed)
 
 
