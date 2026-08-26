@@ -12,7 +12,7 @@ app = FastAPI()
 
 @app.post("/identification", response_model=IdentificationResponse)
 def identification(data: IdentificationRequest):
-    history, pending_duties = verify_permissions(data.metadata)
+    history, pending_duties = verify_permissions(data.bundle_id, data.metadata)
 
     detections = identify_objects(data.image)
 

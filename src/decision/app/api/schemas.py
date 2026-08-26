@@ -2,11 +2,12 @@ from pydantic import BaseModel
 
 
 class DecisionRequest(BaseModel):
-    front: float
-    state: bool
-    image: str
+    bundle_id: str
     detections: IdentificationResponse
+    front: float
+    image: str
     metadata: dict
+    state: bool
 
 
 class BoundingBox(BaseModel):

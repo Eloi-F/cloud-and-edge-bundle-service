@@ -1,7 +1,7 @@
 {
     "@context": "http://www.w3.org/ns/odrl.jsonld",
     "@type": "Request",
-    "uid": "urn:policy:coordination:navigation",
+    "uid": "urn:policy:bundle:navigation",
     "permission":
     [
         {

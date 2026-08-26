@@ -31,7 +31,7 @@ class ODRLEvaluator:
         Initialise l'évaluateur et pré-charge toutes les politiques en mémoire.
         À appeler une seule fois au démarrage du programme.
         """
-        self.master_policy = {"permissions": [], "prohibitions": [], "obligations": []}
+        self.master_policy = {}
         self._load_all_policies(policies_dir)
 
     def _load_all_policies(self, directory):
@@ -54,10 +54,19 @@ class ODRLEvaluator:
                 filepath, format=rdflib.util.guess_format(filepath) or "json-ld"
             )
             parsed_policy = self._parse_policy(graph)
-            # Fusion avec la politique maître
-            self.master_policy["permissions"].extend(parsed_policy["permissions"])
-            self.master_policy["prohibitions"].extend(parsed_policy["prohibitions"])
-            self.master_policy["obligations"].extend(parsed_policy["obligations"])
+
+            policy_uid = parsed_policy.get("uid")
+            if policy_uid:
+                self.master_policy[policy_uid] = {
+                    "permissions": parsed_policy["permissions"],
+                    "prohibitions": parsed_policy["prohibitions"],
+                    "obligations": parsed_policy["obligations"],
+                }
+            else:
+                print(
+                    f"⚠️ Aucune politique (Set, Request, etc.) trouvée dans {filepath}"
+                )
+
         except Exception as e:
             print(f"❌ Erreur lecture de {filepath}: {e}")
 
@@ -129,13 +138,14 @@ class ODRLEvaluator:
                 "required": 0,
             }
 
-        policy = {"permissions": [], "prohibitions": [], "obligations": []}
+        policy = {"uid": None, "permissions": [], "prohibitions": [], "obligations": []}
         for p_type, key in [
             (ODRL.permission, "permissions"),
             (ODRL.prohibition, "prohibitions"),
             (ODRL.obligation, "obligations"),
         ]:
             for policy_node in graph.subjects(p_type):
+                policy["uid"] = str(policy_node)
                 for rule in graph.objects(policy_node, p_type):
                     policy[key].append(build_struct(rule))
         return policy
@@ -205,12 +215,18 @@ class ODRLEvaluator:
             return True
         return False
 
-    def evaluate(self, metadata):
+    def evaluate(self, bundle_id: str, metadata: dict | list):
         """
         Évalue un log ou un historique complet par rapport à la politique en mémoire.
         """
-        # 1. On travaille sur une copie propre de la politique pour ne pas fausser les prochains appels
-        policy = copy.deepcopy(self.master_policy)
+        if bundle_id not in self.master_policy:
+            return {
+                "is_valid": False,
+                "missing_duties": [],
+                "violations": [f"Aucune politique trouvée pour le bundle: {bundle_id}"],
+            }
+
+        policy = copy.deepcopy(self.master_policy[bundle_id])
 
         logs = metadata if isinstance(metadata, list) else [metadata]
         logs.sort(

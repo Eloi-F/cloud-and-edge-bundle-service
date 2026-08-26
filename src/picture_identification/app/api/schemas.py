@@ -2,11 +2,12 @@ from pydantic import BaseModel
 
 
 class IdentificationRequest(BaseModel):
+    bundle_id: str
+    detections: IdentificationResponse
+    front: float
     image: str  # Base64-encoded image
     metadata: dict
-    front: float
     state: bool
-    detections: IdentificationResponse
 
 
 class BoundingBox(BaseModel):

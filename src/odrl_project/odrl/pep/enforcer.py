@@ -23,7 +23,7 @@ def extract_duty_info(duty: dict):
     return action_to_perform
 
 
-def verify_permissions(metadata: dict):
+def verify_permissions(bundle_id: str, metadata: dict):
     """
     Check if the action is allowed before executing business logic.
     """
@@ -31,7 +31,7 @@ def verify_permissions(metadata: dict):
         raise HTTPException(status_code=400, detail="Missing ODRL metadata.")
 
     history = [metadata]
-    result = evaluator.evaluate(history)
+    result = evaluator.evaluate(bundle_id, history)
 
     if not result["is_valid"]:
         raise HTTPException(

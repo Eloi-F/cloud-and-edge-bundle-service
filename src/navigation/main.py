@@ -15,7 +15,7 @@ app = FastAPI()
 async def navigation_endpoint(data: TrajectoryRequest):
     """Handle trajectory planning requests."""
 
-    history, pending_duties = verify_permissions(data.metadata)
+    history, pending_duties = verify_permissions(data.bundle_id, data.metadata)
 
     folium_map = build_trajectory_map(data.start_address, data.destination_address)
     map_file = "map.html"

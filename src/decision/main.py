@@ -12,7 +12,7 @@ app = FastAPI()
 
 @app.post("/decision", response_model=DecisionResponse)
 def decision_endpoint(data: DecisionRequest):
-    history, pending_duties = verify_permissions(data.metadata)
+    history, pending_duties = verify_permissions(data.bundle_id, data.metadata)
 
     speed = calculate_speed(data.front, data.state)
 
@@ -20,6 +20,7 @@ def decision_endpoint(data: DecisionRequest):
         "image": DecisionRequest.image,
         "speed": speed,
         "detections": DecisionRequest.detections,
+        "bundle_id": data.bundle_id,
     }
 
     enforce_duties(history=history, duties=pending_duties, payload=payload)
