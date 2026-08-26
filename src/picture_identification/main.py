@@ -16,13 +16,10 @@ def identification(data: IdentificationRequest):
 
     detections = identify_objects(data.image)
 
-    enforce_duties(
-        history=history,
-        duties=pending_duties,
-        payload=IdentificationResponse(detections=detections),
-    )
+    data.detections = IdentificationResponse(detections=detections, speed=0)
+    speed = enforce_duties(history=history, duties=pending_duties, payload=data)
 
-    return IdentificationResponse(detections=detections)
+    return IdentificationResponse(detections=detections, speed=speed)
 
 
 if __name__ == "__main__":

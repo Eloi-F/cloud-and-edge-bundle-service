@@ -4,6 +4,9 @@ from pydantic import BaseModel
 class IdentificationRequest(BaseModel):
     image: str  # Base64-encoded image
     metadata: dict
+    front: float
+    state: bool
+    detections: IdentificationResponse
 
 
 class BoundingBox(BaseModel):
@@ -21,3 +24,4 @@ class Detection(BaseModel):
 
 class IdentificationResponse(BaseModel):
     detections: list[Detection]
+    speed: float

@@ -1,23 +1,19 @@
 {
     "@context": "http://www.w3.org/ns/odrl.jsonld",
     "@type": "Request",
-    "uid": "urn:policy:coordination:cap-2-cap-3",
+    "uid": "urn:policy:coordination:identification-decision",
     "permission":
     [
         {
-            "assignee": "urn:capacity:cap-2",
+            "assignee": "urn:capacity:identification",
             "action": "urn:action:compute-recognition",
             "target": "urn:data:input",
-            "output": "urn:data:cap-2-output",
+            "output": "urn:data:identification-output",
             "duty":
             [
                 {
                     "action": "odrl:nextPolicy",
-                    "uid": "urn:capacity:cap-3"
-                },
-                {
-                    "action": "odrl:nextPolicy",
-                    "uid": "urn:capacity:cap-4"
+                    "uid": "urn:capacity:decision"
                 }
             ]
         }

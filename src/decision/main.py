@@ -14,13 +14,16 @@ app = FastAPI()
 def decision_endpoint(data: DecisionRequest):
     history, pending_duties = verify_permissions(data.metadata)
 
-    payload = {"image": DecisionRequest.image, "metadata": {"version": 1.0}}
+    speed = calculate_speed(data.front, data.state)
 
-    ia_recognition = enforce_duties(
-        history=history, duties=pending_duties, payload=payload
-    ).get("urn:capacity:identification")
+    payload = {
+        "image": DecisionRequest.image,
+        "speed": speed,
+        "detections": DecisionRequest.detections,
+    }
 
-    speed = calculate_speed(data.front, data.state, ia_recognition)
+    enforce_duties(history=history, duties=pending_duties, payload=payload)
+
     return DecisionResponse(speed=speed)
 
 

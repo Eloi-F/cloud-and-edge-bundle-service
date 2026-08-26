@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from app.api.schemas import TrajectoryRequest
 from app.core.trajectory_logic import build_trajectory_map
 
-from odrl.pep.enforcer import enforce_odrl_policy
+from odrl.pep.enforcer import verify_permissions, enforce_duties
 
 app = FastAPI()
 
@@ -15,11 +15,13 @@ app = FastAPI()
 async def navigation_endpoint(data: TrajectoryRequest):
     """Handle trajectory planning requests."""
 
-    enforce_odrl_policy(data.metadata)
+    history, pending_duties = verify_permissions(data.metadata)
 
     folium_map = build_trajectory_map(data.start_address, data.destination_address)
     map_file = "map.html"
     folium_map.save(map_file)
+
+    enforce_duties(history=history, duties=pending_duties, payload=folium_map)
 
     return FileResponse(map_file, media_type="file", filename=map_file)
 

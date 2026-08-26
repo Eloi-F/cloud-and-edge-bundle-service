@@ -1,13 +1,21 @@
 {
     "@context": "http://www.w3.org/ns/odrl.jsonld",
     "@type": "Request",
-    "uid": "urn:policy:coordination:cap-4",
+    "uid": "urn:policy:coordination:decision-storage",
     "permission":
     [
         {
-            "assignee": "urn:capacity:cap-4",
-            "action": "urn:action:compute-behaviour",
-            "uid": "urn:data:input"
+            "assignee": "urn:capacity:decision",
+            "action": "urn:action:compute-decision",
+            "target": "urn:data:input",
+            "output": "urn:data:decision-output",
+            "duty":
+            [
+                {
+                    "action": "odrl:nextPolicy",
+                    "uid": "urn:capacity:storage"
+                }
+            ]
         }
     ]
 }
