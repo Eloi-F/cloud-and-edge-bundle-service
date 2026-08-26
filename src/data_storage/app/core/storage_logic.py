@@ -1,9 +1,14 @@
 import sqlite3
+import sys
+
 from app.api.schemas import Detection
 
+import logging
+logger = logging.getLogger(__name__)
 
 def connection():
 	"""Return cursor object to handle database."""
+	logger.debug("Connected to database Training.db")
 	return sqlite3.connect("training.db")
 
 
@@ -40,9 +45,11 @@ def create_storage():
 
 			cursor.executescript(create)
 			conn.commit()
+			logger.info("Training.db successfully created.")
 
 	except Exception as e:
-		print("Error occurred while creating table BoundingBoxes : %s", e)
+		logger.error("Error occurred while creating Training.db : %s", e)
+		sys.exit(1)
 
 
 def store_sample(
@@ -95,8 +102,9 @@ def store_sample(
 					)
 				)
 			conn.commit()
+			logger.info("Sample (%s) successfully stored in Training.db", speed)
 			return True
 
 	except Exception as e:
-		print("Error occurred while inserting sample: %s", e)
+		logger.error("Error occurred while inserting sample (%s): %s", speed, e)
 		return False
