@@ -21,7 +21,7 @@ async def navigation_endpoint(data: TrajectoryRequest):
     map_file = "map.html"
     folium_map.save(map_file)
 
-    enforce_duties(history=history, duties=pending_duties, payload=folium_map)
+    enforce_duties(history=history, duties=pending_duties, payload={})
 
     return FileResponse(map_file, media_type="file", filename=map_file)
 
