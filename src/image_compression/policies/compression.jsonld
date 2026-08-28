@@ -1,0 +1,21 @@
+{
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@type": "Request",
+    "uid": "urn:policy:bundle:identification-decision",
+    "permission":
+    [
+        {
+            "assignee": "urn:capacity:compression",
+            "action": "urn:action:compute-compression",
+            "target": "urn:data:input",
+            "output": "urn:data:compression-output",
+            "duty":
+            [
+                {
+                    "action": "odrl:nextPolicy",
+                    "uid": "urn:capacity:identification"
+                }
+            ]
+        }
+    ]
+}
