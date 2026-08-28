@@ -8,7 +8,7 @@ from app.core.storage_logic import store_sample, create_storage
 from odrl.pep.enforcer import verify_permissions, enforce_duties
 
 import logging
-from logging_config import setup_logging
+from src.logging.logging_config import setup_logging
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def storage_endpoint(data: StorageRequest):
     :param data:
     :return: bool
     """
-    logger.info("Received new storage request on /storage endpoint.")
+    logger.info("Received new request on /storage endpoint.")
     history, pending_duties = verify_permissions(data.bundle_id, data.metadata)
     logger.debug(f"Pending duties: {pending_duties}")
 

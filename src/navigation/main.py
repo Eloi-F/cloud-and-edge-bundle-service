@@ -8,6 +8,11 @@ from app.core.trajectory_logic import build_trajectory_map
 
 from odrl.pep.enforcer import verify_permissions, enforce_duties
 
+import logging
+from src.logging.logging_config import setup_logging
+logger = logging.getLogger(__name__)
+
+setup_logging()
 app = FastAPI()
 
 
@@ -15,7 +20,9 @@ app = FastAPI()
 async def navigation_endpoint(data: TrajectoryRequest):
     """Handle trajectory planning requests."""
 
+    logger.info("Received new request on /navigation endpoint.")
     history, pending_duties = verify_permissions(data.bundle_id, data.metadata)
+    logger.debug(f"Pending duties: {pending_duties}")
 
     folium_map = build_trajectory_map(data.start_address, data.destination_address)
     map_file = "map.html"
