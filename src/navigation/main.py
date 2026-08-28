@@ -30,6 +30,7 @@ async def navigation_endpoint(data: TrajectoryRequest):
 
     enforce_duties(history=history, duties=pending_duties, payload={})
 
+    logger.info("Sending back FileResponse.")
     return FileResponse(map_file, media_type="file", filename=map_file)
 
 

@@ -14,50 +14,55 @@ from datetime import datetime
 import folium
 import polyline
 
+import logging
+logger = logging.getLogger(__name__)
+
 api_key = os.environ.get("GOOGLE_MAPS_API_KEY")
 if not api_key:
-    raise EnvironmentError("GOOGLE_MAPS_API_KEY environment variable is not set")
+	raise EnvironmentError("GOOGLE_MAPS_API_KEY environment variable is not set")
 gmaps = googlemaps.Client(key=api_key)
 
 
 def build_trajectory_map(start_address: str, destination_address: str):
-    """
-    Performs shortest path determination for given
-    addresses.
-    :param start_address:
-    :param destination_address:
-    :return: folium map containing itinerary
-    """
-    # Call Google Maps API to determine the shortest path
-    directions_result = gmaps.directions(
-        start_address,
-        destination_address,
-        mode="driving",
-        departure_time=datetime.now(),
-    )
+	"""
+	Performs shortest path determination for given
+	addresses.
+	:param start_address:
+	:param destination_address:
+	:return: folium map containing itinerary
+	"""
+	# Call Google Maps API to determine the shortest path
+	logger.debug(f"Calling Google Maps API from {start_address} to {destination_address}.")
+	directions_result = gmaps.directions(
+		start_address,
+		destination_address,
+		mode="driving",
+		departure_time=datetime.now(),
+	)
 
-    # Building Folium Map elements
-    route = directions_result[0]["overview_polyline"]["points"]
-    points = polyline.decode(route)
-    latitudes = [point[0] for point in points]
-    longitudes = [point[1] for point in points]
-    map_center = [latitudes[0], longitudes[0]]
-    folium_map = folium.Map(location=map_center, zoom_start=13)
-    route_coordinates = list(zip(latitudes, longitudes))
+	# Building Folium Map elements
+	route = directions_result[0]["overview_polyline"]["points"]
+	points = polyline.decode(route)
+	latitudes = [point[0] for point in points]
+	longitudes = [point[1] for point in points]
+	map_center = [latitudes[0], longitudes[0]]
+	folium_map = folium.Map(location=map_center, zoom_start=13)
+	route_coordinates = list(zip(latitudes, longitudes))
 
-    # Drawing Folium Map
-    folium.PolyLine(route_coordinates, color="blue", weight=5, opacity=0.7).add_to(
-        folium_map
-    )
-    folium.Marker(
-        location=[latitudes[0], longitudes[0]],
-        popup="Départ",
-        icon=folium.Icon(color="green"),
-    ).add_to(folium_map)
-    folium.Marker(
-        location=[latitudes[-1], longitudes[-1]],
-        popup="Arrivée",
-        icon=folium.Icon(color="red"),
-    ).add_to(folium_map)
+	# Drawing Folium Map
+	folium.PolyLine(route_coordinates, color="blue", weight=5, opacity=0.7).add_to(
+		folium_map
+	)
+	folium.Marker(
+		location=[latitudes[0], longitudes[0]],
+		popup="Départ",
+		icon=folium.Icon(color="green"),
+	).add_to(folium_map)
+	folium.Marker(
+		location=[latitudes[-1], longitudes[-1]],
+		popup="Arrivée",
+		icon=folium.Icon(color="red"),
+	).add_to(folium_map)
 
-    return folium_map
+	logger.debug(f"Computed shortest path from {start_address} to {destination_address}.")
+	return folium_map

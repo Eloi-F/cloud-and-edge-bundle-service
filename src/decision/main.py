@@ -32,6 +32,7 @@ def decision_endpoint(data: DecisionRequest):
 
 	enforce_duties(history=history, duties=pending_duties, payload=payload)
 
+	logger.info(f"Sending back DecisionResponse(speed={speed})")
 	return DecisionResponse(speed=speed)
 
 
