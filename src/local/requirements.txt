@@ -1,3 +1,4 @@
 requests
 opencv-python-headless
 pyyaml
+picarx

@@ -1,7 +1,12 @@
 import uvicorn
 import os
+import sys
+from pathlib import Path
 
 from fastapi import FastAPI
+
+# Ajouter la racine du projet au sys.path pour permettre les imports src.*
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.models.schemas import (
     IdentificationRequest,
@@ -42,7 +47,7 @@ def identification(data: IdentificationRequest):
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
+        "src.picture_identification.main:app",
         host="0.0.0.0",
         port=int(os.getenv("PORT", 8000)),
         reload=True,

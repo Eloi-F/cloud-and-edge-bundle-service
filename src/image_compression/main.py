@@ -1,7 +1,12 @@
 import os
+import sys
+from pathlib import Path
 
 from fastapi import FastAPI
 import uvicorn
+
+# Ajouter la racine du projet au sys.path pour permettre les imports src.*
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.models.schemas import (
     IdentificationRequest,
@@ -10,7 +15,7 @@ from src.models.schemas import (
 )
 
 from src.image_compression.app.core.crop import crop_with_padding
-from src.odrl_project.odrl.pep.enforcer import verify_permissions, enforce_duties
+from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 
 import logging
 from src.logging.logging_config import setup_logging
@@ -38,7 +43,7 @@ async def resize_image(data: IdentificationRequest):
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
+        "src.image_compression.main:app",
         host="0.0.0.0",
         port=int(os.getenv("PORT", 8002)),
         reload=True,

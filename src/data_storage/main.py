@@ -1,11 +1,17 @@
 import uvicorn
 import os
+import sys
+from pathlib import Path
 
 from fastapi import FastAPI
+
+# Ajouter la racine du projet au sys.path pour permettre les imports src.*
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 from src.models.schemas import TrainingData
 from src.data_storage.app.core.storage_logic import store_sample, create_storage
 
-from src.odrl_project.odrl.pep.enforcer import verify_permissions, enforce_duties
+from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 
 import logging
 from src.logging.logging_config import setup_logging
@@ -43,7 +49,7 @@ def storage_endpoint(data: TrainingData):
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
+        "src.data_storage.main:app",
         host="0.0.0.0",
         port=int(os.getenv("PORT", 8005)),
         reload=True,

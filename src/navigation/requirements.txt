@@ -3,3 +3,6 @@ uvicorn
 googlemaps
 folium
 polyline
+colorlog
+rdflib
+python-dateutil

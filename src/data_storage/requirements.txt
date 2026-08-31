@@ -1,2 +1,5 @@
 fastapi
 uvicorn
+colorlog
+rdflib
+python-dateutil

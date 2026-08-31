@@ -1,11 +1,17 @@
 import uvicorn
 import os
+import sys
+from pathlib import Path
 
 from fastapi import FastAPI
+
+# Ajouter la racine du projet au sys.path pour permettre les imports src.*
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
 from src.models.schemas import DecisionRequest, DecisionResponse
 
 from src.decision.app.core.speed_logic import calculate_speed
-from src.odrl_project.odrl.pep.enforcer import verify_permissions, enforce_duties
+from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 
 import logging
 from src.logging.logging_config import setup_logging
@@ -39,7 +45,7 @@ def decision_endpoint(data: DecisionRequest):
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
+        "src.decision.main:app",
         host="0.0.0.0",
         port=int(os.getenv("PORT", 8002)),
         reload=True,
