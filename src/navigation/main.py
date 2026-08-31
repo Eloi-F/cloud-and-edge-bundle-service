@@ -3,13 +3,14 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 
-from app.api.schemas import TrajectoryRequest
+from models.schemas import TrajectoryRequest
 from app.core.trajectory_logic import build_trajectory_map
 
 from odrl.pep.enforcer import verify_permissions, enforce_duties
 
 import logging
 from src.logging.logging_config import setup_logging
+
 logger = logging.getLogger(__name__)
 
 setup_logging()
