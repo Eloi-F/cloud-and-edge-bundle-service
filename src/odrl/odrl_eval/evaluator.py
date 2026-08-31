@@ -43,9 +43,8 @@ class ODRLEvaluator:
             if filename.endswith((".jsonld", ".ttl", ".rdf", ".xml")):
                 filepath = os.path.join(directory, filename)
                 self._load_policy_file(filepath)
-        print(
-            f"✅ {len(self.master_policy['permissions'])} permissions chargées en mémoire."
-        )
+
+        print(f"Resultat: {self.master_policy}")
 
     def _load_policy_file(self, filepath):
         graph = rdflib.Graph()
@@ -57,11 +56,24 @@ class ODRLEvaluator:
 
             policy_uid = parsed_policy.get("uid")
             if policy_uid:
-                self.master_policy[policy_uid] = {
-                    "permissions": parsed_policy["permissions"],
-                    "prohibitions": parsed_policy["prohibitions"],
-                    "obligations": parsed_policy["obligations"],
-                }
+                if policy_uid not in self.master_policy:
+                    self.master_policy[policy_uid] = {
+                        "permissions": [],
+                        "prohibitions": [],
+                        "obligations": [],
+                    }
+
+                self.master_policy[policy_uid]["permissions"].extend(
+                    parsed_policy.get("permissions", [])
+                )
+
+                self.master_policy[policy_uid]["prohibitions"].extend(
+                    parsed_policy.get("prohibitions", [])
+                )
+
+                self.master_policy[policy_uid]["obligations"].extend(
+                    parsed_policy.get("obligations", [])
+                )
             else:
                 print(
                     f"⚠️ Aucune politique (Set, Request, etc.) trouvée dans {filepath}"

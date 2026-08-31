@@ -1,12 +1,14 @@
 import os
 import uvicorn
 from fastapi import FastAPI
+
 from fastapi.responses import FileResponse
 
-from models.schemas import TrajectoryRequest
-from app.core.trajectory_logic import build_trajectory_map
+from src.models.schemas import TrajectoryRequest
 
-from odrl.pep.enforcer import verify_permissions, enforce_duties
+from src.navigation.app.core.trajectory_logic import build_trajectory_map
+
+from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 
 import logging
 from src.logging.logging_config import setup_logging
@@ -37,5 +39,8 @@ async def navigation_endpoint(data: TrajectoryRequest):
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app", host="0.0.0.0", port=int(os.getenv("PORT", 8001)), reload=True
+        "src.navigation.main:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 8001)),
+        reload=True,
     )

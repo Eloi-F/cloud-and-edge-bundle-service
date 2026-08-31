@@ -4,9 +4,9 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 
-from models.schemas import BoundingBox, Detection
+from src.models.schemas import BoundingBox, Detection
 
-from app.core.config import MODEL_PATH
+from src.picture_identification.app.core.config import MODEL_PATH
 import logging
 
 logger = logging.getLogger(__name__)

@@ -2,10 +2,10 @@ import uvicorn
 import os
 
 from fastapi import FastAPI
-from models.schemas import DecisionRequest, DecisionResponse
+from src.models.schemas import DecisionRequest, DecisionResponse
 
-from app.core.speed_logic import calculate_speed
-from odrl.pep.enforcer import verify_permissions, enforce_duties
+from src.decision.app.core.speed_logic import calculate_speed
+from src.odrl_project.odrl.pep.enforcer import verify_permissions, enforce_duties
 
 import logging
 from src.logging.logging_config import setup_logging

@@ -1,8 +1,8 @@
 import datetime
 from fastapi import HTTPException
 
-from odrl.odrl_eval import ODRLEvaluator
-from odrl.pep.network import delegate_to
+from src.odrl.odrl_eval import ODRLEvaluator
+from src.odrl.pep.transfer import delegate_to
 
 evaluator = ODRLEvaluator("./policies")
 

@@ -3,14 +3,14 @@ import os
 
 from fastapi import FastAPI
 
-from models.schemas import (
+from src.models.schemas import (
     IdentificationRequest,
     IdentificationResponse,
     SensoryIdentificationResponse,
 )
 
-from app.core.identification_logic import identify_objects
-from odrl.pep.enforcer import verify_permissions, enforce_duties
+from src.picture_identification.app.core.identification_logic import identify_objects
+from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 
 import logging
 from src.logging.logging_config import setup_logging
@@ -29,7 +29,7 @@ def identification(data: IdentificationRequest):
 
     detections = identify_objects(data.image)
 
-    enforce_duties(history=history, duties=pending_duties, payload=data)
+    enforce_duties(history=history, duties=pending_duties, payload=dict(data))
 
     if data.sensors is not None:
         return SensoryIdentificationResponse(

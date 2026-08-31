@@ -3,9 +3,14 @@ import os
 from fastapi import FastAPI
 import uvicorn
 
-from models.schemas import IdentificationRequest, ImageResponse, SensoryImageResponse
-from app.core.crop import crop_with_padding
-from odrl.pep.enforcer import verify_permissions, enforce_duties
+from src.models.schemas import (
+    IdentificationRequest,
+    ImageResponse,
+    SensoryImageResponse,
+)
+
+from src.image_compression.app.core.crop import crop_with_padding
+from src.odrl_project.odrl.pep.enforcer import verify_permissions, enforce_duties
 
 import logging
 from src.logging.logging_config import setup_logging
