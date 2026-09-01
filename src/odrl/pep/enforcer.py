@@ -4,6 +4,13 @@ from fastapi import HTTPException
 from src.odrl.pep.transfer import delegate_to
 from src.odrl.odrl_eval import ODRLEvaluator
 
+import logging
+from src.logging.logging_config import setup_logging
+setup_logging()
+logger = logging.getLogger(__name__)
+
+
+
 
 POLICY_TO_SERVICE_MAP = {
     "urn:capacity:identification": "http://localhost:8000/identification",
@@ -48,6 +55,7 @@ def enforce_duties(
     Execute duties.
     """
     if not duties:
+        logger.debug("No coming duties.")
         return {}
 
     delegation_responses = {}
@@ -63,6 +71,7 @@ def enforce_duties(
                 raise HTTPException(
                     status_code=500, detail=f"URL not found for: {target_uid}"
                 )
+            logger.debug(f"Performing Nextpolicy towards {target_url}")
 
             response_data = delegate_to(endpoint=target_url, data=payload)
             delegation_responses[target_uid] = response_data
@@ -83,7 +92,7 @@ def enforce_duties(
                 )
         else:
             raise HTTPException(status_code=501, detail=f"Unsupported Duty: {action}")
-
+    logger.debug("All duties done.")
     final_result = evaluator.evaluate(history)
     if not final_result["is_valid"] or final_result["missing_duties"]:
         raise HTTPException(
