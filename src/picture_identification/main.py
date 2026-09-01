@@ -5,7 +5,6 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
-# Ajouter la racine du projet au sys.path pour permettre les imports src.*
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.models.schemas import (
@@ -22,6 +21,10 @@ from src.logging.logging_config import setup_logging
 
 logger = logging.getLogger(__name__)
 
+from src.odrl.odrl_eval import ODRLEvaluator
+
+evaluator = ODRLEvaluator("./src/picture_identification/policies")
+
 setup_logging()
 app = FastAPI()
 
@@ -29,12 +32,16 @@ app = FastAPI()
 @app.post("/identification")
 def identification(data: IdentificationRequest):
     logger.info("Received new request on /identification endpoint.")
-    history, pending_duties = verify_permissions(data.bundle_id, data.metadata)
+    history, pending_duties = verify_permissions(
+        evaluator, data.bundle_id, data.metadata
+    )
     logger.debug(f"Pending duties: {pending_duties}")
 
     detections = identify_objects(data.image)
 
-    enforce_duties(history=history, duties=pending_duties, payload=dict(data))
+    enforce_duties(
+        evaluator, history=history, duties=pending_duties, payload=dict(data)
+    )
 
     if data.sensors is not None:
         return SensoryIdentificationResponse(

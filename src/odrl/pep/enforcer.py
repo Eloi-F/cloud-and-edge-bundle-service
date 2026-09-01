@@ -1,10 +1,9 @@
 import datetime
 from fastapi import HTTPException
 
-from src.odrl.odrl_eval import ODRLEvaluator
 from src.odrl.pep.transfer import delegate_to
+from src.odrl.odrl_eval import ODRLEvaluator
 
-evaluator = ODRLEvaluator("./policies")
 
 POLICY_TO_SERVICE_MAP = {
     "urn:capacity:identification": "http://cap1-service:8000/api",
@@ -23,7 +22,7 @@ def extract_duty_info(duty: dict):
     return action_to_perform
 
 
-def verify_permissions(bundle_id: str, metadata: dict):
+def verify_permissions(evaluator: ODRLEvaluator, bundle_id: str, metadata: dict):
     """
     Check if the action is allowed before executing business logic.
     """
@@ -41,7 +40,9 @@ def verify_permissions(bundle_id: str, metadata: dict):
     return history, result["missing_duties"]
 
 
-def enforce_duties(history: list, duties: list, payload: dict):
+def enforce_duties(
+    evaluator: ODRLEvaluator, history: list, duties: list, payload: dict
+):
     """
     Execute duties.
     """

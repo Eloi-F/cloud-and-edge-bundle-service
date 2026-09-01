@@ -5,7 +5,6 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
-# Ajouter la racine du projet au sys.path pour permettre les imports src.*
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.models.schemas import TrainingData
@@ -15,6 +14,10 @@ from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 
 import logging
 from src.logging.logging_config import setup_logging
+
+from src.odrl.odrl_eval import ODRLEvaluator
+
+evaluator = ODRLEvaluator("./src/data_storage/policies")
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +35,9 @@ def storage_endpoint(data: TrainingData):
     :return: bool
     """
     logger.info("Received new request on /storage endpoint.")
-    history, pending_duties = verify_permissions(data.bundle_id, data.metadata)
+    history, pending_duties = verify_permissions(
+        evaluator, data.bundle_id, data.metadata
+    )
     logger.debug(f"Pending duties: {pending_duties}")
 
     result = store_sample(
@@ -41,7 +46,7 @@ def storage_endpoint(data: TrainingData):
         detections=data.detections,
     )
 
-    enforce_duties(history=history, duties=pending_duties, payload={})
+    enforce_duties(evaluator, history=history, duties=pending_duties, payload={})
 
     logger.info(f"Sending back StorageResponse(stored={result})")
     return result

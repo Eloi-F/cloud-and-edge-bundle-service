@@ -5,7 +5,6 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
-# Ajouter la racine du projet au sys.path pour permettre les imports src.*
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.models.schemas import DecisionRequest, DecisionResponse
@@ -16,6 +15,10 @@ from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 import logging
 from src.logging.logging_config import setup_logging
 
+from src.odrl.odrl_eval import ODRLEvaluator
+
+evaluator = ODRLEvaluator("./src/decision/policies")
+
 logger = logging.getLogger(__name__)
 
 setup_logging()
@@ -25,7 +28,9 @@ app = FastAPI()
 @app.post("/decision", response_model=DecisionResponse)
 def decision_endpoint(data: DecisionRequest):
     logger.info("Received new request on /decision endpoint.")
-    history, pending_duties = verify_permissions(data.bundle_id, data.metadata)
+    history, pending_duties = verify_permissions(
+        evaluator, data.bundle_id, data.metadata
+    )
     logger.debug(f"Pending duties: {pending_duties}")
 
     speed = calculate_speed(data.sensors.front, data.sensors.state)
@@ -37,7 +42,7 @@ def decision_endpoint(data: DecisionRequest):
         "bundle_id": data.bundle_id,
     }
 
-    enforce_duties(history=history, duties=pending_duties, payload=payload)
+    enforce_duties(evaluator, history=history, duties=pending_duties, payload=payload)
 
     logger.info(f"Sending back DecisionResponse(speed={speed})")
     return DecisionResponse(speed=speed)
