@@ -14,10 +14,6 @@
                 {
                     "action": "odrl:nextPolicy",
                     "uid": "urn:capacity:storage"
-                },
-                {
-                    "action": "odrl:nextPolicy",
-                    "uid": "urn:capacity:image-compression"
                 }
             ]
         }

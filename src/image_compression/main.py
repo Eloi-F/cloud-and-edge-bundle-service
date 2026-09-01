@@ -33,14 +33,25 @@ async def resize_image(data: IdentificationRequest):
     )
     logger.debug(f"Pending duties: {pending_duties}")
 
-    data.image = crop_with_padding(data.image)
+    resized_request = IdentificationRequest(
+        bundle_id=data.bundle_id,
+        metadata={
+            "http://www.w3.org/ns/odrl/2/dateTime": "2026-10-10T10:01:00",
+            "http://www.w3.org/ns/odrl/2/Party": "urn:capacity:identification",
+            "http://www.w3.org/ns/odrl/2/Action": "urn:action:compute-recognition",
+            "http://www.w3.org/ns/odrl/2/Asset": "urn:data:input"
+        },
+        image=crop_with_padding(data.image),
+        sensors=data.sensors
+    )
+
 
     result = enforce_duties(
         evaluator,
         bundle_id=data.bundle_id,
         history=history,
         duties=pending_duties,
-        payload=data,
+        payload=resized_request,
     )
 
     identification_resp = result.get("urn:capacity:identification", {})

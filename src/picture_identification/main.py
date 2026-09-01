@@ -40,9 +40,15 @@ def identification(data: IdentificationRequest):
 
     detections = identify_objects(data.image)
 
+    metadata = {
+        "http://www.w3.org/ns/odrl/2/dateTime": "2026-10-10T10:01:00",
+        "http://www.w3.org/ns/odrl/2/Party": "urn:capacity:storage",
+        "http://www.w3.org/ns/odrl/2/Action": "urn:action:store",
+        "http://www.w3.org/ns/odrl/2/Asset": "urn:data:input"
+    }
     decision_req = DecisionRequest(
         bundle_id=data.bundle_id,
-        metadata=data.metadata,
+        metadata=metadata,
         image=data.image,
         detections=detections,
         sensors=data.sensors,
