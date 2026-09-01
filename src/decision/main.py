@@ -47,7 +47,13 @@ def decision_endpoint(data: DecisionRequest):
         speed=speed,
     )
 
-    enforce_duties(evaluator, history=history, duties=pending_duties, payload=payload)
+    enforce_duties(
+        evaluator,
+        bundle_id=data.bundle_id,
+        history=history,
+        duties=pending_duties,
+        payload=payload,
+    )
 
     logger.info(f"Sending back DecisionResponse(speed={speed})")
     return DecisionResponse(speed=speed)

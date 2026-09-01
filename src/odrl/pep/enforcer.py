@@ -49,7 +49,11 @@ def verify_permissions(evaluator: ODRLEvaluator, bundle_id: str, metadata: dict)
 
 
 def enforce_duties(
-    evaluator: ODRLEvaluator, history: list, duties: list, payload: BaseModel
+    evaluator: ODRLEvaluator,
+    bundle_id: str,
+    history: list,
+    duties: list,
+    payload: BaseModel,
 ):
     """
     Execute duties.
@@ -93,7 +97,7 @@ def enforce_duties(
         else:
             raise HTTPException(status_code=501, detail=f"Unsupported Duty: {action}")
     logger.debug("All duties done.")
-    final_result = evaluator.evaluate(history)
+    final_result = evaluator.evaluate(bundle_id, history)
     if not final_result["is_valid"] or final_result["missing_duties"]:
         raise HTTPException(
             status_code=401, detail="Duties validation failed after execution."

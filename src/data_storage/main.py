@@ -46,7 +46,13 @@ def storage_endpoint(data: TrainingData):
         detections=data.detections,
     )
 
-    enforce_duties(evaluator, history=history, duties=pending_duties, payload=data)
+    enforce_duties(
+        evaluator,
+        bundle_id=data.bundle_id,
+        history=history,
+        duties=pending_duties,
+        payload=data,
+    )
 
     logger.info(f"Sending back StorageResponse(stored={result})")
     return result

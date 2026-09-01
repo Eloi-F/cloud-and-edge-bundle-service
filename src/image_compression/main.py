@@ -36,14 +36,20 @@ async def resize_image(data: IdentificationRequest):
     data.image = crop_with_padding(data.image)
 
     result = enforce_duties(
-        evaluator, history=history, duties=pending_duties, payload=data
+        evaluator,
+        bundle_id=data.bundle_id,
+        history=history,
+        duties=pending_duties,
+        payload=data,
     )
 
-    if result["bundle_id"] == "urn:policy:bundle:bundle1":
-        return result.get("detections")
+    identification_resp = result.get("urn:capacity:identification", {})
 
-    elif result["bundle_id"] == "urn:policy:bundle:bundle2":
-        return result.get("speed")
+    if data.bundle_id == "urn:policy:bundle:bundle1":
+        return identification_resp.get("detections")
+
+    elif data.bundle_id == "urn:policy:bundle:bundle2":
+        return identification_resp.get("speed")
 
 
 if __name__ == "__main__":

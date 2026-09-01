@@ -50,6 +50,7 @@ def identification(data: IdentificationRequest):
 
     result = enforce_duties(
         evaluator,
+        bundle_id=data.bundle_id,
         history=history,
         duties=pending_duties,
         payload=decision_req,
@@ -59,7 +60,8 @@ def identification(data: IdentificationRequest):
         return IdentificationResponse(image=data.image, detections=detections)
 
     elif data.bundle_id == "urn:policy:bundle:bundle2":
-        return DecisionResponse(speed=result["speed"])
+        decision_resp = result.get("urn:capacity:decision", {})
+        return DecisionResponse(speed=decision_resp.get("speed", 0))
 
 
 if __name__ == "__main__":
