@@ -1,15 +1,15 @@
 import datetime
 from fastapi import HTTPException
 
+from pydantic import BaseModel
 from src.odrl.pep.transfer import delegate_to
 from src.odrl.odrl_eval import ODRLEvaluator
 
 import logging
 from src.logging.logging_config import setup_logging
+
 setup_logging()
 logger = logging.getLogger(__name__)
-
-
 
 
 POLICY_TO_SERVICE_MAP = {
@@ -49,7 +49,7 @@ def verify_permissions(evaluator: ODRLEvaluator, bundle_id: str, metadata: dict)
 
 
 def enforce_duties(
-    evaluator: ODRLEvaluator, history: list, duties: list, payload: dict
+    evaluator: ODRLEvaluator, history: list, duties: list, payload: BaseModel
 ):
     """
     Execute duties.

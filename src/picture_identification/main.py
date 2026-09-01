@@ -10,7 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.models.schemas import (
     IdentificationRequest,
     IdentificationResponse,
-    SensoryIdentificationResponse,
+    DecisionRequest,
+    DecisionResponse,
 )
 
 from src.picture_identification.app.core.identification_logic import identify_objects
@@ -39,17 +40,26 @@ def identification(data: IdentificationRequest):
 
     detections = identify_objects(data.image)
 
-    enforce_duties(
-        evaluator, history=history, duties=pending_duties, payload=dict(data)
+    decision_req = DecisionRequest(
+        bundle_id=data.bundle_id,
+        metadata=data.metadata,
+        image=data.image,
+        detections=detections,
+        sensors=data.sensors,
     )
 
-    if data.sensors is not None:
-        return SensoryIdentificationResponse(
-            image=data.image,
-            detections=detections,
-            sensors=data.sensors,
-        )
-    return IdentificationResponse(image=data.image, detections=detections)
+    result = enforce_duties(
+        evaluator,
+        history=history,
+        duties=pending_duties,
+        payload=decision_req,
+    )
+
+    if data.bundle_id == "urn:policy:bundle:bundle1":
+        return IdentificationResponse(image=data.image, detections=detections)
+
+    elif data.bundle_id == "urn:policy:bundle:bundle2":
+        return DecisionResponse(speed=result["speed"])
 
 
 if __name__ == "__main__":

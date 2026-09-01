@@ -31,7 +31,7 @@ class DecisionRequest(BaseModel):
     metadata: dict
     image: str
     detections: list[Detection]
-    sensors: Sensors
+    sensors: Sensors | None = None
 
 
 class DecisionResponse(BaseModel):

@@ -49,7 +49,6 @@ class ODRLEvaluator:
                 filepath = os.path.join(directory, filename)
                 self._load_policy_file(filepath)
 
-        print(f"Resultat: {self.master_policy}")
 
     def _load_policy_file(self, filepath):
         graph = rdflib.Graph()

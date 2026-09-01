@@ -7,11 +7,7 @@ import uvicorn
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.models.schemas import (
-    IdentificationRequest,
-    ImageResponse,
-    SensoryImageResponse,
-)
+from src.models.schemas import IdentificationRequest
 
 from src.image_compression.app.core.crop import crop_with_padding
 from src.odrl.pep.enforcer import verify_permissions, enforce_duties
@@ -37,13 +33,17 @@ async def resize_image(data: IdentificationRequest):
     )
     logger.debug(f"Pending duties: {pending_duties}")
 
-    result = crop_with_padding(data.image)
+    data.image = crop_with_padding(data.image)
 
-    enforce_duties(evaluator, history=history, duties=pending_duties, payload=result)
+    result = enforce_duties(
+        evaluator, history=history, duties=pending_duties, payload=data
+    )
 
-    if data.sensors is not None:
-        return SensoryImageResponse(image=result["image"], sensors=data.sensors)
-    return ImageResponse(image=result["image"])
+    if result["bundle_id"] == "urn:policy:bundle:bundle1":
+        return result.get("detections")
+
+    elif result["bundle_id"] == "urn:policy:bundle:bundle2":
+        return result.get("speed")
 
 
 if __name__ == "__main__":

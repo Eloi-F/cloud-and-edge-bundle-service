@@ -7,7 +7,7 @@ from fastapi import FastAPI
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.models.schemas import DecisionRequest, DecisionResponse
+from src.models.schemas import DecisionRequest, DecisionResponse, TrainingData
 
 from src.decision.app.core.speed_logic import calculate_speed
 from src.odrl.pep.enforcer import verify_permissions, enforce_duties
@@ -33,14 +33,19 @@ def decision_endpoint(data: DecisionRequest):
     )
     logger.debug(f"Pending duties: {pending_duties}")
 
+    if not data.sensors:
+        logger.info("Sensors was empty, can't evaluate the speed.")
+        return DecisionResponse(speed=0)
+
     speed = calculate_speed(data.sensors.front, data.sensors.state)
 
-    payload = {
-        "image": data.image,
-        "speed": speed,
-        "detections": data.detections,
-        "bundle_id": data.bundle_id,
-    }
+    payload = TrainingData(
+        bundle_id=data.bundle_id,
+        metadata=data.metadata,
+        image=data.image,
+        detections=data.detections,
+        speed=speed,
+    )
 
     enforce_duties(evaluator, history=history, duties=pending_duties, payload=payload)
 
