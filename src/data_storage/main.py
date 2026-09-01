@@ -56,6 +56,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "src.data_storage.main:app",
         host="0.0.0.0",
-        port=int(os.getenv("PORT", 8005)),
+        port=int(os.getenv("PORT", 8004)),
         reload=True,
     )

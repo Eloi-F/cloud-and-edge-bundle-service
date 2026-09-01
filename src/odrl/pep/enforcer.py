@@ -6,10 +6,11 @@ from src.odrl.odrl_eval import ODRLEvaluator
 
 
 POLICY_TO_SERVICE_MAP = {
-    "urn:capacity:identification": "http://cap1-service:8000/api",
-    "urn:capacity:storage": "http://cap3-service:8000/api",
-    "urn:capacity:decision": "http://cap4-service:8000/api",
-    "urn:capacity:navigation": "http://cap6-service:8000/api",
+    "urn:capacity:identification": "http://localhost:8000/identification",
+    "urn:capacity:navigation": "http://localhost:8001/trajectory_planning",
+    "urn:capacity:decision": "http://localhost:8002/decision",
+    "urn:capacity:image-compression": "http://localhost:8003/resize",
+    "urn:capacity:storage": "http://localhost:8004/storage",
 }
 
 
