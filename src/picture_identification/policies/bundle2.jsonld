@@ -1,7 +1,7 @@
 {
     "@context": "http://www.w3.org/ns/odrl.jsonld",
     "@type": "Request",
-    "uid": "urn:policy:bundle:identification-decision",
+    "uid": "urn:policy:bundle:bundle2",
     "permission":
     [
         {

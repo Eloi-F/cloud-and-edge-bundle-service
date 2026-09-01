@@ -5,15 +5,15 @@
     "permission":
     [
         {
-            "assignee": "urn:capacity:decision",
-            "action": "urn:action:compute-decision",
+            "assignee": "urn:capacity:compression",
+            "action": "urn:action:compute-compression",
             "target": "urn:data:input",
-            "output": "urn:data:decision-output",
+            "output": "urn:data:compression-output",
             "duty":
             [
                 {
                     "action": "odrl:nextPolicy",
-                    "uid": "urn:capacity:storage"
+                    "uid": "urn:capacity:identification"
                 }
             ]
         }

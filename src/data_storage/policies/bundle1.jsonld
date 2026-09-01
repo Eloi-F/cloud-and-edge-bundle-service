@@ -1,0 +1,14 @@
+{
+    "@context": "http://www.w3.org/ns/odrl.jsonld",
+    "@type": "Request",
+    "uid": "urn:policy:bundle:bundle1",
+    "permission":
+    [
+        {
+            "assignee": "urn:capacity:storage",
+            "action": "urn:action:store",
+            "target": "urn:data:input",
+            "output": "urn:data:storage-output"
+        }
+    ]
+}
