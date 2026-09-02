@@ -8,8 +8,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 COPY src/image_compression/ ./src/image_compression/
 COPY src/models/ ./src/models/
-COPY src/odrl/ ./src/odrl/
-COPY src/logging/ ./src/logging/
+COPY src/logging_config/ ./src/logging_config/
+COPY src/http_client.py ./src/http_client.py
 
 COPY src/image_compression/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \

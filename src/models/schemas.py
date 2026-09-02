@@ -21,14 +21,12 @@ class Sensors(BaseModel):
 
 class IdentificationRequest(BaseModel):
     bundle_id: str
-    metadata: dict
     image: str
     sensors: Sensors | None = None
 
 
 class DecisionRequest(BaseModel):
     bundle_id: str
-    metadata: dict
     image: str
     detections: list[Detection]
     sensors: Sensors | None = None
@@ -57,7 +55,6 @@ class SensoryIdentificationResponse(IdentificationResponse):
 
 class TrainingData(BaseModel):
     bundle_id: str
-    metadata: dict
     image: str
     detections: list[Detection]
     speed: float | None = None
@@ -65,6 +62,5 @@ class TrainingData(BaseModel):
 
 class TrajectoryRequest(BaseModel):
     bundle_id: str
-    metadata: dict
     start_address: str
     destination_address: str

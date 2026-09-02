@@ -8,15 +8,14 @@ environments.
 The system is composed of:
 
 * a local client application running on the vehicle;
-* edge/cloud capacities that process the data, each enforcing its behavior through ODRL policies.
+* edge/cloud capacities that process the data and call each other through plain HTTP.
 
 Each capacity is a FastAPI microservice that can be deployed independently.
 
 ## Bundles
 
-The pipeline is driven by **bundle policies** expressed in ODRL. Each request carries a `bundle_id` that selects
-the policy to enforce. Capacities validate permissions (`verify_permissions`) and execute obligations
-(`enforce_duties`), delegating to the next capacity through a `nextPolicy` duty.
+A request carries a `bundle_id` that selects which pipeline to run. Capacities call each other directly over HTTP
+(no policy engine involved).
 
 | Bundle   | Pipeline                                                                 |
 | -------- | ------------------------------------------------------------------------ |
@@ -29,9 +28,10 @@ the policy to enforce. Capacities validate permissions (`verify_permissions`) an
 * **`src/<capacity>/`**: One directory per capacity (`data_storage`, `decision`, `image_compression`, `navigation`,
   plus `picture_identification` for the identification capacity).
 * **`src/models/`**: Shared Pydantic request/response schemas.
-* **`src/odrl/`**: Shared ODRL policy engine (`odrl_eval`) and policy-enforcement point (`pep`).
+* **`src/http_client.py`**: Shared helper for plain HTTP calls between capacities.
+* **`src/client.py`**: Test client that runs the three bundles against the running services.
 * **`src/logging_config/`**: Shared logging configuration helper.
-* **`src/local/`**: Vehicle client application.
+* **`src/local/`**: Vehicle client application (kept separate, still uses its own ODRL evaluation).
 * **`docker/`**: Dockerfiles used to build the different service images.
 
 ## Capacities and ports

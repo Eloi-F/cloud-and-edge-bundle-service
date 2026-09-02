@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 numpy
-ultralytics-opencv-headless
+ultralytics
 colorlog
-rdflib
-python-dateutil
+pydantic
+requests

@@ -2,7 +2,5 @@ fastapi
 uvicorn
 Pillow
 colorlog
-rdflib
-python-dateutil
 pydantic
 requests

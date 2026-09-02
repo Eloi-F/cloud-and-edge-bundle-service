@@ -3,12 +3,9 @@ import base64
 import random
 import sys
 import time
-from datetime import datetime
 
 
 import requests
-
-ODRL = "http://www.w3.org/ns/odrl/2/"
 
 DEFAULT_IMAGE = "image.png"
 
@@ -25,26 +22,6 @@ BUNDLE_IDS = {
     "bundle3": "urn:policy:bundle:bundle3",
 }
 
-# ODRL permission context used by the image_compression service policies.
-COMPRESSION_PARTY = "urn:capacity:compression"
-COMPRESSION_ACTION = "urn:action:compute-compression"
-
-# ODRL permission context used by the navigation service policy.
-NAVIGATION_PARTY = "urn:capacity:navigation"
-NAVIGATION_ACTION = "urn:action:compute-path"
-
-ASSET_INPUT = "urn:data:input"
-
-
-def make_metadata(party: str, action: str, when: str | None = None) -> dict:
-    """Build ODRL metadata with a dynamic (current) dateTime by default."""
-    return {
-        ODRL + "dateTime": when or datetime.now().isoformat(),
-        ODRL + "Party": party,
-        ODRL + "Action": action,
-        ODRL + "Asset": ASSET_INPUT,
-    }
-
 
 def load_image(path: str) -> str:
     """Return a base64-encoded JPEG. Falls back to a tiny placeholder if missing."""
@@ -59,7 +36,6 @@ def load_image(path: str) -> str:
 def build_bundle1(image_path: str) -> dict:
     return {
         "bundle_id": BUNDLE_IDS["bundle1"],
-        "metadata": make_metadata(COMPRESSION_PARTY, COMPRESSION_ACTION),
         "image": load_image(image_path),
         "sensors": None,
     }
@@ -72,7 +48,6 @@ def build_bundle2(
 ) -> dict:
     return {
         "bundle_id": BUNDLE_IDS["bundle2"],
-        "metadata": make_metadata(COMPRESSION_PARTY, COMPRESSION_ACTION),
         "image": load_image(image_path),
         "sensors": {
             "front": front
@@ -86,7 +61,6 @@ def build_bundle2(
 def build_bundle3(start_address: str, destination_address: str) -> dict:
     return {
         "bundle_id": BUNDLE_IDS["bundle3"],
-        "metadata": make_metadata(NAVIGATION_PARTY, NAVIGATION_ACTION),
         "start_address": start_address,
         "destination_address": destination_address,
     }
