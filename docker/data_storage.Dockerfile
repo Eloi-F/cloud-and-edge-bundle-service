@@ -6,14 +6,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app
 
-COPY src/decision/ ./src/decision/
+COPY src/data_storage/ ./src/data_storage/
 COPY src/models/ ./src/models/
 COPY src/odrl/ ./src/odrl/
 COPY src/logging/ ./src/logging/
 
-COPY src/decision/requirements.txt /tmp/requirements.txt
+COPY src/data_storage/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /tmp/requirements.txt
 
-
-CMD ["uvicorn", "src.decision.main:app", "--host", "0.0.0.0"]
+CMD ["uvicorn", "src.data_storage.main:app", "--host", "0.0.0.0"]

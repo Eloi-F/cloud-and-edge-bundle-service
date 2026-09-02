@@ -60,6 +60,8 @@ git clone https://github.com/Eloi-F/cloud-and-edge-bundle-service.git
 docker build -f docker/decision.Dockerfile -t decision .
 docker build -f docker/identification.Dockerfile -t identification .
 docker build -f docker/navigation.Dockerfile -t navigation .
+docker build -f docker/image_compression.Dockerfile -t image_compression .
+docker build -f docker/data_storage.Dockerfile -t data_storage .
 docker build -f docker/local.Dockerfile -t local .
 ```
 

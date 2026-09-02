@@ -1,13 +1,19 @@
 FROM python:3.14-slim
 
-WORKDIR /navigation
+WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
 
-COPY src/cloud/navigation/ .
+COPY src/navigation/ ./src/navigation/
+COPY src/models/ ./src/models/
+COPY src/odrl/ ./src/odrl/
+COPY src/logging/ ./src/logging/
 
+COPY src/navigation/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r /tmp/requirements.txt
 
-CMD ["python", "main.py"]
+
+CMD ["uvicorn", "src.navigation.main:app", "--host", "0.0.0.0"]
