@@ -1,12 +1,10 @@
-from email.mime import image
-
 import logging
 import uvicorn
 import os
 import sys
 from pathlib import Path
 from datetime import datetime
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
@@ -17,7 +15,7 @@ from src.models.schemas import (
     DecisionResponse,
     Detection,
     TrainingData,
-    Sensors
+    Sensors,
 )
 from src.logging_config.logging_config import setup_logging
 from src.picture_identification.app.core.identification_logic import identify_objects
@@ -33,9 +31,9 @@ evaluator = ODRLEvaluator("./src/picture_identification/policies")
 BUNDLE_PATH = "urn:policy:bundle"
 
 
-def parse_bundle_id(bundle_id: str) -> str :
+def parse_bundle_id(bundle_id: str) -> str:
     """Return parsed bundle id."""
-    return bundle_id.rsplit(":",1)[-1]
+    return bundle_id.rsplit(":", 1)[-1]
 
 
 def get_current_date() -> str:
@@ -43,24 +41,9 @@ def get_current_date() -> str:
     return datetime.now().isoformat(timespec="seconds")
 
 
-def build_identification_response(
-        img: str,
-        detections: list[Detection]
-) -> IdentificationResponse :
-    """Build IdentificationResponse object with detections to send back."""
-
-    logger.debug("Building IdentificationResponse to send back.")
-    return IdentificationResponse(
-        image=img,
-        detections=detections
-    )
-
 def build_storage_request(
-        bundle_id: str,
-        img: str,
-        detections: list[Detection],
-        speed: float | None
-) -> TrainingData :
+    bundle_id: str, img: str, detections: list[Detection], speed: float | None
+) -> TrainingData:
     """Build TrainingData object with detections to send to /storage endpoint."""
 
     logger.debug("Building TrainingData object to send to /storage endpoint.")
@@ -70,19 +53,17 @@ def build_storage_request(
             "http://www.w3.org/ns/odrl/2/dateTime": get_current_date(),
             "http://www.w3.org/ns/odrl/2/Party": "urn:capacity:storage",
             "http://www.w3.org/ns/odrl/2/Action": "urn:action:store",
-            "http://www.w3.org/ns/odrl/2/Asset": "urn:data:input"
+            "http://www.w3.org/ns/odrl/2/Asset": "urn:data:input",
         },
         image=img,
         detections=detections,
-        speed=speed
+        speed=speed,
     )
 
+
 def build_decision_request(
-        bundle_id: str,
-        img: str,
-        detections: list[Detection],
-        sensors: Sensors | None
-) -> DecisionRequest :
+    bundle_id: str, img: str, detections: list[Detection], sensors: Sensors | None
+) -> DecisionRequest:
     """Build DecisionRequest object with detections and sensors to send to /decision endpoint."""
 
     logger.debug("Building TrainingData object to send to /storage endpoint.")
@@ -92,11 +73,11 @@ def build_decision_request(
             "http://www.w3.org/ns/odrl/2/dateTime": get_current_date(),
             "http://www.w3.org/ns/odrl/2/Party": "urn:capacity:decision",
             "http://www.w3.org/ns/odrl/2/Action": "urn:action:compute-decision",
-            "http://www.w3.org/ns/odrl/2/Asset": "urn:data:input"
+            "http://www.w3.org/ns/odrl/2/Asset": "urn:data:input",
         },
         image=img,
         detections=detections,
-        sensors=sensors
+        sensors=sensors,
     )
 
 
@@ -128,16 +109,14 @@ def identification(input_request: IdentificationRequest):
             history=history,
             duties=pending_duties,
             payload=build_storage_request(
-                input_request.bundle_id,
-                input_request.image,
-                detections,
-                None
-            )
+                input_request.bundle_id, input_request.image, detections, None
+            ),
         )
-        return build_identification_response(input_request.image,detections)
+        logger.debug("Building IdentificationResponse to send back.")
+        return IdentificationResponse(detections=detections)
 
     # Bundle 2 -> Decision request + Decision response
-    else :
+    else:
         result = enforce_duties(
             evaluator,
             bundle_id=input_request.bundle_id,
@@ -147,8 +126,8 @@ def identification(input_request: IdentificationRequest):
                 input_request.bundle_id,
                 input_request.image,
                 detections,
-                input_request.sensors
-            )
+                input_request.sensors,
+            ),
         )
         decision_resp = result.get("urn:capacity:decision", {})
         return DecisionResponse(speed=decision_resp.get("speed", 0))
