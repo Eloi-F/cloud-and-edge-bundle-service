@@ -8,7 +8,7 @@ from fastapi import FastAPI
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.models.schemas import DecisionRequest, DecisionResponse, TrainingData, Detection
+from src.commons.schemas import DecisionRequest, DecisionResponse, TrainingData, Detection
 from src.decision.app.core.speed_logic import calculate_speed
 from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 from src.odrl.odrl_eval import ODRLEvaluator

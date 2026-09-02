@@ -1,7 +1,7 @@
 import sqlite3
 import sys
 
-from src.models.schemas import Detection
+from src.commons.schemas import Detection
 
 import logging
 

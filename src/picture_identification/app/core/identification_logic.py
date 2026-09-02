@@ -4,7 +4,7 @@ import numpy as np
 import logging
 from ultralytics import YOLO
 
-from src.models.schemas import BoundingBox, Detection
+from src.commons.schemas import BoundingBox, Detection
 from src.picture_identification.app.core.config import MODEL_PATH
 
 logger = logging.getLogger(__name__)

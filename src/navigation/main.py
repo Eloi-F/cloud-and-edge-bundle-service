@@ -8,7 +8,7 @@ from fastapi import FastAPI
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.models.schemas import TrajectoryRequest
+from src.commons.schemas import TrajectoryRequest
 # from src.navigation.app.core.trajectory_logic import build_trajectory_map
 from src.odrl.pep.enforcer import verify_permissions
 # from src.odrl.pep.enforcer import enforce_duties

@@ -28,7 +28,7 @@ the policy to enforce. Capacities validate permissions (`verify_permissions`) an
 
 * **`src/<capacity>/`**: One directory per capacity (`data_storage`, `decision`, `image_compression`, `navigation`,
   plus `picture_identification` for the identification capacity).
-* **`src/models/`**: Shared Pydantic request/response schemas.
+* **`src/commons/`**: Shared Pydantic request/response schemas.
 * **`src/odrl/`**: Shared ODRL policy engine (`odrl_eval`) and policy-enforcement point (`pep`).
 * **`src/logging_config/`**: Shared logging configuration helper.
 * **`src/local/`**: Vehicle client application.

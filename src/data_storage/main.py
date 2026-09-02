@@ -7,7 +7,7 @@ from fastapi import FastAPI
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.models.schemas import TrainingData
+from src.commons.schemas import TrainingData
 from src.data_storage.app.core.storage_logic import store_sample, create_storage
 from src.logging_config.logging_config import setup_logging
 from src.odrl.pep.enforcer import verify_permissions, enforce_duties
@@ -26,7 +26,7 @@ def storage_endpoint(data: TrainingData):
     Storage service endpoint. Stores image
     and associated detections in database
     in order to reuse them for training AI
-    models.
+    commons.
 
     :return: bool
     """

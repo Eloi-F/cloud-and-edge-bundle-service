@@ -8,7 +8,7 @@ from fastapi import FastAPI
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.models.schemas import (
+from src.commons.schemas import (
     IdentificationRequest,
     IdentificationResponse,
     DecisionRequest,
