@@ -1,4 +1,4 @@
-import logging
+import logging_config
 import os
 import sys
 import uvicorn
@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.models.schemas import IdentificationRequest, Sensors
 from src.image_compression.app.core.crop import crop_with_padding
-from src.logging.logging_config import setup_logging
+from src.logging_config.logging_config import setup_logging
 from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 from src.odrl.odrl_eval import ODRLEvaluator
 
@@ -19,7 +19,7 @@ setup_logging()
 app = FastAPI()
 
 evaluator = ODRLEvaluator("./src/image_compression/policies")
-logger = logging.getLogger(__name__)
+logger = logging_config.getLogger(__name__)
 BUNDLE_PATH = "urn:policy:bundle"
 
 def get_current_date() -> str:

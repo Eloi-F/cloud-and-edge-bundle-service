@@ -1,6 +1,6 @@
 from email.mime import image
 
-import logging
+import logging_config
 import uvicorn
 import os
 import sys
@@ -19,7 +19,7 @@ from src.models.schemas import (
     TrainingData,
     Sensors
 )
-from src.logging.logging_config import setup_logging
+from src.logging_config.logging_config import setup_logging
 from src.picture_identification.app.core.identification_logic import identify_objects
 from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 from src.odrl.odrl_eval import ODRLEvaluator
@@ -28,7 +28,7 @@ from src.odrl.odrl_eval import ODRLEvaluator
 setup_logging()
 app = FastAPI()
 
-logger = logging.getLogger(__name__)
+logger = logging_config.getLogger(__name__)
 evaluator = ODRLEvaluator("./src/picture_identification/policies")
 BUNDLE_PATH = "urn:policy:bundle"
 

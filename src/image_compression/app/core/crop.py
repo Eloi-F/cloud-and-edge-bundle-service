@@ -1,9 +1,9 @@
 from io import BytesIO
 import base64
 from PIL import Image
-import logging
+import logging_config
 
-logger = logging.getLogger(__name__)
+logger = logging_config.getLogger(__name__)
 IMG_SIZE = 640
 
 

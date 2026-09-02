@@ -1,7 +1,7 @@
 import uvicorn
 import os
 import sys
-import logging
+import logging_config
 from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI
@@ -12,12 +12,12 @@ from src.models.schemas import DecisionRequest, DecisionResponse, TrainingData, 
 from src.decision.app.core.speed_logic import calculate_speed
 from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 from src.odrl.odrl_eval import ODRLEvaluator
-from src.logging.logging_config import setup_logging
+from src.logging_config.logging_config import setup_logging
 
 
 
 evaluator = ODRLEvaluator("./src/decision/policies")
-logger = logging.getLogger(__name__)
+logger = logging_config.getLogger(__name__)
 setup_logging()
 app = FastAPI()
 

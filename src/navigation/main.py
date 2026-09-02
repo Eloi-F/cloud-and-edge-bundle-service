@@ -16,14 +16,14 @@ from src.odrl.pep.enforcer import verify_permissions
 
 # from src.odrl.pep.enforcer import enforce_duties
 
-import logging
-from src.logging.logging_config import setup_logging
+import logging_config
+from src.logging_config.logging_config import setup_logging
 
 from src.odrl.odrl_eval import ODRLEvaluator
 
 evaluator = ODRLEvaluator("./src/navigation/policies")
 
-logger = logging.getLogger(__name__)
+logger = logging_config.getLogger(__name__)
 
 setup_logging()
 app = FastAPI()

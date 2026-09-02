@@ -3,9 +3,9 @@ import sys
 
 from src.models.schemas import Detection
 
-import logging
+import logging_config
 
-logger = logging.getLogger(__name__)
+logger = logging_config.getLogger(__name__)
 
 
 def connection():

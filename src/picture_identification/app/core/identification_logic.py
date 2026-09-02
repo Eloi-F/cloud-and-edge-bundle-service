@@ -1,13 +1,13 @@
 import base64
 import cv2
 import numpy as np
-import logging
+import logging_config
 from ultralytics import YOLO
 
 from src.models.schemas import BoundingBox, Detection
 from src.picture_identification.app.core.config import MODEL_PATH
 
-logger = logging.getLogger(__name__)
+logger = logging_config.getLogger(__name__)
 model = YOLO(MODEL_PATH)
 
 

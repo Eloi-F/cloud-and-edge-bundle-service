@@ -5,11 +5,11 @@ from pydantic import BaseModel
 from src.odrl.pep.transfer import delegate_to
 from src.odrl.odrl_eval import ODRLEvaluator
 
-import logging
-from src.logging.logging_config import setup_logging
+import logging_config
+from src.logging_config.logging_config import setup_logging
 
 setup_logging()
-logger = logging.getLogger(__name__)
+logger = logging_config.getLogger(__name__)
 
 
 POLICY_TO_SERVICE_MAP = {

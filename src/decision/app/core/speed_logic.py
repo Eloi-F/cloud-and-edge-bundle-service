@@ -1,5 +1,5 @@
-import logging
-logger = logging.getLogger(__name__)
+import logging_config
+logger = logging_config.getLogger(__name__)
 
 def calculate_speed(dist: float, cliff_state: bool):
 	"""
