@@ -1,6 +1,6 @@
 from email.mime import image
 
-import logging_config
+import logging
 import uvicorn
 import os
 import sys
@@ -28,7 +28,7 @@ from src.odrl.odrl_eval import ODRLEvaluator
 setup_logging()
 app = FastAPI()
 
-logger = logging_config.getLogger(__name__)
+logger = logging.getLogger(__name__)
 evaluator = ODRLEvaluator("./src/picture_identification/policies")
 BUNDLE_PATH = "urn:policy:bundle"
 

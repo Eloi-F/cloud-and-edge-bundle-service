@@ -14,8 +14,8 @@ from datetime import datetime
 import folium
 import polyline
 
-import logging_config
-logger = logging_config.getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 api_key = os.environ.get("GOOGLE_MAPS_API_KEY")
 if not api_key:

@@ -1,8 +1,8 @@
-import logging_config
+import logging
 import colorlog
 
 
-class LevelPaddingFilter(logging_config.Filter):
+class LevelPaddingFilter(logging.Filter):
     def filter(self, record):
         record.levelname_padded = f"{record.levelname}:".ljust(9)
         return True

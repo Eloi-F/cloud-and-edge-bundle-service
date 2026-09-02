@@ -6,10 +6,10 @@ from rdflib.collection import Collection
 from rdflib.namespace import RDF
 from dateutil import parser
 
-import logging_config
+import logging
 from src.logging_config.logging_config import setup_logging
 setup_logging()
-logger = logging_config.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 ODRL = rdflib.Namespace("http://www.w3.org/ns/odrl/2/")
 
