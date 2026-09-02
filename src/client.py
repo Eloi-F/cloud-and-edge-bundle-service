@@ -56,24 +56,24 @@ def load_image(path: str) -> str:
         sys.exit()
 
 
-def build_bundle1(image: str) -> dict:
+def build_bundle1(image_path: str) -> dict:
     return {
         "bundle_id": BUNDLE_IDS["bundle1"],
         "metadata": make_metadata(COMPRESSION_PARTY, COMPRESSION_ACTION),
-        "image": image,
+        "image": load_image(image_path),
         "sensors": None,
     }
 
 
 def build_bundle2(
-    image: str,
+    image_path: str,
     front: float | None = None,
     state: bool | None = None,
 ) -> dict:
     return {
         "bundle_id": BUNDLE_IDS["bundle2"],
         "metadata": make_metadata(COMPRESSION_PARTY, COMPRESSION_ACTION),
-        "image": image,
+        "image": load_image(image_path),
         "sensors": {
             "front": front
             if front is not None
