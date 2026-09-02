@@ -1,9 +1,12 @@
+from email.mime import image
+
+import logging
 import uvicorn
 import os
 import sys
 from pathlib import Path
-
-from fastapi import FastAPI
+from datetime import datetime
+from fastapi import FastAPI, HTTPException
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
@@ -12,60 +15,141 @@ from src.models.schemas import (
     IdentificationResponse,
     DecisionRequest,
     DecisionResponse,
+    Detection,
+    TrainingData,
+    Sensors
 )
-
+from src.logging.logging_config import setup_logging
 from src.picture_identification.app.core.identification_logic import identify_objects
 from src.odrl.pep.enforcer import verify_permissions, enforce_duties
-
-import logging
-from src.logging.logging_config import setup_logging
-
-logger = logging.getLogger(__name__)
-
 from src.odrl.odrl_eval import ODRLEvaluator
 
-evaluator = ODRLEvaluator("./src/picture_identification/policies")
 
 setup_logging()
 app = FastAPI()
 
+logger = logging.getLogger(__name__)
+evaluator = ODRLEvaluator("./src/picture_identification/policies")
+BUNDLE_PATH = "urn:policy:bundle"
+
+
+def parse_bundle_id(bundle_id: str) -> str :
+    """Return parsed bundle id."""
+    return bundle_id.rsplit(":",1)[-1]
+
+
+def get_current_date() -> str:
+    """Return the current date/time in ISO format (YYYY-MM-DDTHH:MM:SS)."""
+    return datetime.now().isoformat(timespec="seconds")
+
+
+def build_identification_response(
+        img: str,
+        detections: list[Detection]
+) -> IdentificationResponse :
+    """Build IdentificationResponse object with detections to send back."""
+
+    logger.debug("Building IdentificationResponse to send back.")
+    return IdentificationResponse(
+        image=img,
+        detections=detections
+    )
+
+def build_storage_request(
+        bundle_id: str,
+        img: str,
+        detections: list[Detection],
+        speed: float | None
+) -> TrainingData :
+    """Build TrainingData object with detections to send to /storage endpoint."""
+
+    logger.debug("Building TrainingData object to send to /storage endpoint.")
+    return TrainingData(
+        bundle_id=bundle_id,
+        metadata={
+            "http://www.w3.org/ns/odrl/2/dateTime": get_current_date(),
+            "http://www.w3.org/ns/odrl/2/Party": "urn:capacity:storage",
+            "http://www.w3.org/ns/odrl/2/Action": "urn:action:store",
+            "http://www.w3.org/ns/odrl/2/Asset": "urn:data:input"
+        },
+        image=img,
+        detections=detections,
+        speed=speed
+    )
+
+def build_decision_request(
+        bundle_id: str,
+        img: str,
+        detections: list[Detection],
+        sensors: Sensors | None
+) -> DecisionRequest :
+    """Build DecisionRequest object with detections and sensors to send to /decision endpoint."""
+
+    logger.debug("Building TrainingData object to send to /storage endpoint.")
+    return DecisionRequest(
+        bundle_id=bundle_id,
+        metadata={
+            "http://www.w3.org/ns/odrl/2/dateTime": get_current_date(),
+            "http://www.w3.org/ns/odrl/2/Party": "urn:capacity:decision",
+            "http://www.w3.org/ns/odrl/2/Action": "urn:action:compute-decision",
+            "http://www.w3.org/ns/odrl/2/Asset": "urn:data:input"
+        },
+        image=img,
+        detections=detections,
+        sensors=sensors
+    )
+
 
 @app.post("/identification")
-def identification(data: IdentificationRequest):
+def identification(input_request: IdentificationRequest):
+    """
+    Identification endpoint. Performs AI recognition on
+    input image to detect obstacles on road.
+
+    :param input_request:
+    :return:
+    """
+
     logger.info("Received new request on /identification endpoint.")
+
     history, pending_duties = verify_permissions(
-        evaluator, data.bundle_id, data.metadata
+        evaluator, input_request.bundle_id, input_request.metadata
     )
-    logger.debug(f"Pending duties: {pending_duties}")
+    logger.debug("Pending duties: %s", pending_duties)
 
-    detections = identify_objects(data.image)
+    # Perform AI detection on image
+    detections = identify_objects(input_request.image)
 
-    metadata = {
-        "http://www.w3.org/ns/odrl/2/dateTime": "2026-10-10T10:01:00",
-        "http://www.w3.org/ns/odrl/2/Party": "urn:capacity:storage",
-        "http://www.w3.org/ns/odrl/2/Action": "urn:action:store",
-        "http://www.w3.org/ns/odrl/2/Asset": "urn:data:input"
-    }
-    decision_req = DecisionRequest(
-        bundle_id=data.bundle_id,
-        metadata=metadata,
-        image=data.image,
-        detections=detections,
-        sensors=data.sensors,
-    )
+    # Bundle 1 -> Storage request + Identification response
+    if parse_bundle_id(input_request.bundle_id) == "bundle1":
+        enforce_duties(
+            evaluator,
+            bundle_id=input_request.bundle_id,
+            history=history,
+            duties=pending_duties,
+            payload=build_storage_request(
+                input_request.bundle_id,
+                input_request.image,
+                detections,
+                None
+            )
+        )
+        return build_identification_response(input_request.image,detections)
 
-    result = enforce_duties(
-        evaluator,
-        bundle_id=data.bundle_id,
-        history=history,
-        duties=pending_duties,
-        payload=decision_req,
-    )
-
-    if data.bundle_id == "urn:policy:bundle:bundle1":
-        return IdentificationResponse(image=data.image, detections=detections)
-
-    elif data.bundle_id == "urn:policy:bundle:bundle2":
+    # Bundle 2 -> Decision request + Decision response
+    else :
+        result = enforce_duties(
+            evaluator,
+            bundle_id=input_request.bundle_id,
+            history=history,
+            duties=pending_duties,
+            payload=build_decision_request(
+                input_request.bundle_id,
+                input_request.image,
+                detections,
+                input_request.sensors
+            )
+        )
         decision_resp = result.get("urn:capacity:decision", {})
         return DecisionResponse(speed=decision_resp.get("speed", 0))
 

@@ -13,11 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 POLICY_TO_SERVICE_MAP = {
-    "urn:capacity:identification": "http://localhost:8000/identification",
-    "urn:capacity:navigation": "http://localhost:8001/trajectory_planning",
-    "urn:capacity:decision": "http://localhost:8002/decision",
-    "urn:capacity:image-compression": "http://localhost:8003/resize",
-    "urn:capacity:storage": "http://localhost:8004/storage",
+    "urn:capacity:identification":      "http://localhost:8000/identification",
+    "urn:capacity:navigation":          "http://localhost:8001/trajectory_planning",
+    "urn:capacity:decision":            "http://localhost:8002/decision",
+    "urn:capacity:image-compression":   "http://localhost:8003/resize",
+    "urn:capacity:storage":             "http://localhost:8004/storage",
 }
 
 

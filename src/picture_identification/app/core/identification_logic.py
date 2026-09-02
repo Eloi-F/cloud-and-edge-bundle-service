@@ -1,16 +1,13 @@
 import base64
-
 import cv2
 import numpy as np
+import logging
 from ultralytics import YOLO
 
 from src.models.schemas import BoundingBox, Detection
-
 from src.picture_identification.app.core.config import MODEL_PATH
-import logging
 
 logger = logging.getLogger(__name__)
-
 model = YOLO(MODEL_PATH)
 
 
@@ -26,9 +23,11 @@ def identify_objects(img_base64: str) -> list[Detection]:
         img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
         if img is None:
+            logger.error("Given image is None.")
             return []
 
     except Exception:
+        logger.error("Error decoding given image.")
         return []
 
     results = model(source=img)
@@ -36,12 +35,12 @@ def identify_objects(img_base64: str) -> list[Detection]:
     detections: list[Detection] = []
 
     for result in results:
-        logger.debug("Object detected.")
         boxes = result.boxes.xyxy.cpu().numpy()
         class_ids = result.boxes.cls.cpu().numpy().astype(int)
         confs = result.boxes.conf.cpu().numpy()
 
         for box, class_id, conf in zip(boxes, class_ids, confs):
+            logger.debug("Object detected, building box...")
             x1, y1, x2, y2 = box
 
             detections.append(

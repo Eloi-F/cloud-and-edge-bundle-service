@@ -1,4 +1,3 @@
-import logging
 from io import BytesIO
 import base64
 from PIL import Image
@@ -9,11 +8,21 @@ IMG_SIZE = 640
 
 
 def crop_with_padding(img_b64: str):
+    """
+    Resize endpoint logic. Transform input image to
+    IMG_SIZE x IMG_SIZE dimensions.
+    :param img_b64:
+    :return:
+    """
+
+    logger.debug("Resizing input image...")
+
+    # Decode base64 image
     image_data = base64.b64decode(img_b64)
     image = Image.open(BytesIO(image_data)).convert("RGB")
 
+    # Resize given image
     ratio = min(IMG_SIZE / image.width, IMG_SIZE / image.height)
-
     new_width = round(image.width * ratio)
     new_height = round(image.height * ratio)
 
@@ -29,7 +38,8 @@ def crop_with_padding(img_b64: str):
     output = BytesIO()
     canvas.save(output, format="JPEG")
 
+    # Encode in base64 resized image
     resized_b64 = base64.b64encode(output.getvalue()).decode("utf-8")
 
-    logger.debug(f"Resized input image to {IMG_SIZE}x{IMG_SIZE}.")
+    logger.debug(f"Successfully resized input image to {IMG_SIZE}x{IMG_SIZE}.")
     return resized_b64
