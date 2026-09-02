@@ -3,9 +3,12 @@ import base64
 import random
 import sys
 import time
+from datetime import datetime
 
 
 import requests
+
+ODRL = "http://www.w3.org/ns/odrl/2/"
 
 DEFAULT_IMAGE = "image.png"
 
@@ -22,6 +25,26 @@ BUNDLE_IDS = {
     "bundle3": "urn:policy:bundle:bundle3",
 }
 
+# ODRL permission context used by the image_compression service policies.
+COMPRESSION_PARTY = "urn:capacity:compression"
+COMPRESSION_ACTION = "urn:action:compute-compression"
+
+# ODRL permission context used by the navigation service policy.
+NAVIGATION_PARTY = "urn:capacity:navigation"
+NAVIGATION_ACTION = "urn:action:compute-path"
+
+ASSET_INPUT = "urn:data:input"
+
+
+def make_metadata(party: str, action: str, when: str | None = None) -> dict:
+    """Build ODRL metadata with a dynamic (current) dateTime by default."""
+    return {
+        ODRL + "dateTime": when or datetime.now().isoformat(),
+        ODRL + "Party": party,
+        ODRL + "Action": action,
+        ODRL + "Asset": ASSET_INPUT,
+    }
+
 
 def load_image(path: str) -> str:
     """Return a base64-encoded JPEG. Falls back to a tiny placeholder if missing."""
@@ -36,6 +59,7 @@ def load_image(path: str) -> str:
 def build_bundle1(image_path: str) -> dict:
     return {
         "bundle_id": BUNDLE_IDS["bundle1"],
+        "metadata": make_metadata(COMPRESSION_PARTY, COMPRESSION_ACTION),
         "image": load_image(image_path),
         "sensors": None,
     }
@@ -48,6 +72,7 @@ def build_bundle2(
 ) -> dict:
     return {
         "bundle_id": BUNDLE_IDS["bundle2"],
+        "metadata": make_metadata(COMPRESSION_PARTY, COMPRESSION_ACTION),
         "image": load_image(image_path),
         "sensors": {
             "front": front
@@ -61,6 +86,7 @@ def build_bundle2(
 def build_bundle3(start_address: str, destination_address: str) -> dict:
     return {
         "bundle_id": BUNDLE_IDS["bundle3"],
+        "metadata": make_metadata(NAVIGATION_PARTY, NAVIGATION_ACTION),
         "start_address": start_address,
         "destination_address": destination_address,
     }
@@ -136,33 +162,70 @@ def parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument(
         "--timeout", type=float, default=60.0, help="HTTP timeout in seconds."
     )
+    parser.add_argument(
+        "--repeat",
+        type=int,
+        default=1,
+        help="Number of times to call each selected bundle (default: 1).",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv=None) -> int:
     args = parse_args(argv)
 
+    if args.repeat < 1:
+        raise SystemExit("--repeat must be at least 1.")
+
     to_run = list(dict.fromkeys(args.bundle)) if args.bundle else []
     if args.all or not to_run:
         to_run = list(BUNDLES)
 
-    results = {}
+    measurements: dict[str, list[float]] = {}
+    failures: dict[str, int] = {}
+
     for bundle in to_run:
-        try:
-            elapsed, body = run_bundle(bundle, args)
-            results[bundle] = elapsed
-            print(f"[{bundle}] response: {body}")
-            print(f"[{bundle}] elapsed:  {elapsed * 1000:.1f} ms")
-        except requests.RequestException as exc:
-            print(f"[{bundle}] ERROR: {exc}", file=sys.stderr)
-            results[bundle] = None
+        measurements[bundle] = []
+        failures[bundle] = 0
+        for i in range(1, args.repeat + 1):
+            try:
+                elapsed, _ = run_bundle(bundle, args)
+                measurements[bundle].append(elapsed)
+                print(
+                    f"[{bundle}] call {i}/{args.repeat}: {elapsed * 1000:.1f} ms",
+                    flush=True,
+                )
+            except requests.RequestException as exc:
+                failures[bundle] += 1
+                print(
+                    f"[{bundle}] call {i}/{args.repeat}: ERROR: {exc}", file=sys.stderr
+                )
         print()
 
-    print("---- timing summary ----")
+    print("---- measurement summary ----")
     for bundle in to_run:
-        elapsed = results.get(bundle)
-        label = f"{elapsed * 1000:.1f} ms" if elapsed is not None else "FAILED"
-        print(f"{bundle:8s} {label}")
+        values = measurements[bundle]
+        failed = failures[bundle]
+        if values:
+            ms = [v * 1000.0 for v in values]
+            mean = sum(ms) / len(ms)
+            low, high = min(ms), max(ms)
+            std = (sum((v - mean) ** 2 for v in ms) / len(ms)) ** 0.5
+            print(
+                f"{bundle:8s} n={len(values):2d}  min={low:8.1f}  "
+                f"mean={mean:8.1f}  max={high:8.1f}  std={std:7.1f} ms"
+                + (f"  ({failed} failed)" if failed else "")
+            )
+        else:
+            print(f"{bundle:8s} FAILED ({failed} failed)")
+
+    print("\n---- copy these lists into src/measurements.py DATA ----")
+    print('# with-ODRL run  -> paste under the matching bundle\'s "odrl"')
+    print('# ODRL-free run  -> paste under the matching bundle\'s "no_odrl"')
+    for bundle in to_run:
+        values = measurements[bundle]
+        ms = [round(v * 1000.0, 2) for v in values]
+        print(f'"{bundle}": {ms},')
 
     return 0
 
