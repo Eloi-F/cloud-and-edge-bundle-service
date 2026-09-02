@@ -1,7 +1,7 @@
 import uvicorn
 import os
 import sys
-import logging_config
+import logging
 from datetime import datetime
 from pathlib import Path
 from fastapi import FastAPI
@@ -17,7 +17,7 @@ from src.logging_config.logging_config import setup_logging
 
 
 evaluator = ODRLEvaluator("./src/decision/policies")
-logger = logging_config.getLogger(__name__)
+logger = logging.getLogger(__name__)
 setup_logging()
 app = FastAPI()
 

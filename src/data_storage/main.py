@@ -1,7 +1,7 @@
 import uvicorn
 import os
 import sys
-import logging_config
+import logging
 from pathlib import Path
 from fastapi import FastAPI
 
@@ -14,7 +14,7 @@ from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 from src.odrl.odrl_eval import ODRLEvaluator
 
 evaluator = ODRLEvaluator("./src/data_storage/policies")
-logger = logging_config.getLogger(__name__)
+logger = logging.getLogger(__name__)
 setup_logging()
 create_storage()
 app = FastAPI()

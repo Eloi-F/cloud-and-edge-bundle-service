@@ -1,4 +1,4 @@
-import logging_config
+import logging
 import os
 import sys
 import uvicorn
@@ -19,7 +19,7 @@ setup_logging()
 app = FastAPI()
 
 evaluator = ODRLEvaluator("./src/image_compression/policies")
-logger = logging_config.getLogger(__name__)
+logger = logging.getLogger(__name__)
 BUNDLE_PATH = "urn:policy:bundle"
 
 def get_current_date() -> str:

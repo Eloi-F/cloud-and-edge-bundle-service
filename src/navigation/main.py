@@ -1,45 +1,41 @@
 import os
+import logging
 import sys
-from pathlib import Path
 import uvicorn
+from pathlib import Path
 from fastapi import FastAPI
+# from fastapi.responses import FileResponse
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-# from fastapi.responses import FileResponse
-
 from src.models.schemas import TrajectoryRequest
-
 # from src.navigation.app.core.trajectory_logic import build_trajectory_map
-
 from src.odrl.pep.enforcer import verify_permissions
-
 # from src.odrl.pep.enforcer import enforce_duties
-
-import logging_config
+from src.odrl.odrl_eval import ODRLEvaluator
 from src.logging_config.logging_config import setup_logging
 
-from src.odrl.odrl_eval import ODRLEvaluator
-
 evaluator = ODRLEvaluator("./src/navigation/policies")
-
-logger = logging_config.getLogger(__name__)
-
+logger = logging.getLogger(__name__)
 setup_logging()
 app = FastAPI()
 
 
 @app.post("/trajectory_planning")
 async def navigation_endpoint(data: TrajectoryRequest):
-    """Handle trajectory planning requests."""
+    """
+    Incomplete navigation endpoint. Performs
+    shortest path between source and dest.
+
+    :param data:
+    :return:
+    """
 
     logger.info("Received new request on /navigation endpoint.")
     history, pending_duties = verify_permissions(
         evaluator, data.bundle_id, data.metadata
     )
-    logger.debug(f"Pending duties: {pending_duties}")
-
-    return {"success": "True"}
+    logger.debug("Building TrainingData object to send to /storage endpoint.")
 
     # folium_map = build_trajectory_map(data.start_address, data.destination_address)
     # map_file = "map.html"
@@ -49,6 +45,8 @@ async def navigation_endpoint(data: TrajectoryRequest):
     #
     # logger.info("Sending back FileResponse.")
     # return FileResponse(map_file, media_type="file", filename=map_file)
+
+    return {"success": "True"}
 
 
 if __name__ == "__main__":
