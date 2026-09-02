@@ -6,3 +6,5 @@ polyline
 colorlog
 rdflib
 python-dateutil
+pydantic
+requests

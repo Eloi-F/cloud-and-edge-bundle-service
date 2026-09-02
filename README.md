@@ -2,22 +2,47 @@
 
 ## Overview
 
-This repository contains a distributed architecture for managing bundle processing across local, edge, and cloud environments.
+This repository contains a distributed architecture for managing bundle processing across local, edge, and cloud
+environments.
 
 The system is composed of:
 
 * a local client application running on the vehicle;
-* edge services responsible for processing close to the data source;
-* multiple cloud services providing higher-level processing and capabilities.
+* edge/cloud capacities that process the data, each enforcing its behavior through ODRL policies.
 
-Each component can be deployed independently using Docker.
+Each capacity is a FastAPI microservice that can be deployed independently.
+
+## Bundles
+
+The pipeline is driven by **bundle policies** expressed in ODRL. Each request carries a `bundle_id` that selects
+the policy to enforce. Capacities validate permissions (`verify_permissions`) and execute obligations
+(`enforce_duties`), delegating to the next capacity through a `nextPolicy` duty.
+
+| Bundle   | Pipeline                                                                 |
+| -------- | ------------------------------------------------------------------------ |
+| bundle1  | `image_compression` → `identification` → `data_storage`                  |
+| bundle2  | `image_compression` → `identification` → `decision` → `data_storage`     |
+| bundle3  | `navigation` (trajectory planning)                                       |
 
 ## Project Structure
 
-* **`src/local/`**: Contains the vehicle client application responsible for local processing and communication with edge and cloud services.
-* **`src/edge/`**: Contains the edge platform components and services.
-* **`src/cloud/`**: Contains the different cloud services and their related components.
-* **`docker/`**: Contains the Dockerfiles used to build the different service images.
+* **`src/<capacity>/`**: One directory per capacity (`data_storage`, `decision`, `image_compression`, `navigation`,
+  plus `picture_identification` for the identification capacity).
+* **`src/models/`**: Shared Pydantic request/response schemas.
+* **`src/odrl/`**: Shared ODRL policy engine (`odrl_eval`) and policy-enforcement point (`pep`).
+* **`src/logging_config/`**: Shared logging configuration helper.
+* **`src/local/`**: Vehicle client application.
+* **`docker/`**: Dockerfiles used to build the different service images.
+
+## Capacities and ports
+
+| Capacity            | Port | Endpoint                |
+| ------------------- | ---- | ----------------------- |
+| picture_identification | 8000 | `/identification`     |
+| navigation          | 8001 | `/trajectory_planning`  |
+| decision            | 8002 | `/decision`             |
+| image_compression   | 8003 | `/resize`               |
+| data_storage        | 8004 | `/storage`              |
 
 ## Installation
 
@@ -42,4 +67,5 @@ docker build -f docker/local.Dockerfile -t local .
 
 Each service has its own configuration requirements.
 
-For more information about installation, configuration, and usage, refer to the `README.md` file located in the corresponding service directory.
+For more information about installation, configuration, and usage, refer to the `README.md` file located in the
+corresponding service directory.
