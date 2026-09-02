@@ -35,13 +35,12 @@ def parse_bundle_id(bundle_id: str) -> str:
 
 
 def build_identification_response(
-    img: str,
     detections: list[Detection],
 ) -> IdentificationResponse:
     """Build IdentificationResponse object with detections to send back."""
 
     logger.debug("Building IdentificationResponse to send back.")
-    return IdentificationResponse(image=img, detections=detections)
+    return IdentificationResponse(detections=detections)
 
 
 @app.post("/identification")
@@ -68,7 +67,7 @@ def identification(input_request: IdentificationRequest):
             speed=None,
         )
         post_json(STORAGE_URL, storage_request)
-        return build_identification_response(input_request.image, detections)
+        return build_identification_response(detections)
 
     # Bundle 2 -> Decision request + Decision response
     else:

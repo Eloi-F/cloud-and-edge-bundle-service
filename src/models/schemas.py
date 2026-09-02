@@ -45,7 +45,6 @@ class SensoryImageResponse(ImageResponse):
 
 
 class IdentificationResponse(BaseModel):
-    image: str
     detections: list[Detection]
 
 
