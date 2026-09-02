@@ -25,7 +25,7 @@ def setup_logging():
 
     handler.setFormatter(formatter)
 
-    root = logging_config.getLogger()
+    root = logging.getLogger()
     root.handlers.clear()
     root.addHandler(handler)
-    root.setLevel(logging_config.DEBUG)
+    root.setLevel(logging.DEBUG)
