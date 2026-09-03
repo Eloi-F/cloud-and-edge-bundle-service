@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 COPY src/decision/ ./src/decision/
 COPY src/models/ ./src/models/
 COPY src/odrl/ ./src/odrl/
-COPY src/logging/ ./src/logging/
+COPY src/logging_config/ ./src/logging_config/
 
 COPY src/decision/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
