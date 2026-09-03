@@ -6,6 +6,13 @@ from osmnx import geocoder, distance, routing, graph
 logger = logging.getLogger(__name__)
 
 
+def _street_name(edge) -> str | None:
+    name = edge.get("name")
+    if name is None:
+        return None
+    if isinstance(name, list):
+        return " / ".join(name)
+    return name
 
 
 def compute_shortest_path(
@@ -47,10 +54,11 @@ def compute_shortest_path(
             osm_dest_id,
             weight="length"
         )
+
         streets = []
         for u, v in zip(route[:-1], route[1:]):
             edge = next(iter(city_map[u][v].values()))
-            name = edge.get("name")
+            name = _street_name(edge)
             if name is not None and (not streets or streets[-1] != name):
                 streets.append(name)
         logger.debug("Compute path : %s", streets)

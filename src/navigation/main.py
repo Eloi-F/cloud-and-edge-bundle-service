@@ -59,6 +59,8 @@ async def navigation_endpoint(data: TrajectoryRequest):
     )
 
     logger.debug("Sending back shortest path.")
+    logger.debug("route = %s",route)
+
     return TrajectoryResponse(route=route)
 
 
