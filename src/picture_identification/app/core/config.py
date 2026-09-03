@@ -10,5 +10,6 @@ BASE_URL = f"{PROTOCOL}://{HOST_DOMAIN}:{PORT}"
 
 NODE_ID = os.getenv("NODE_ID", socket.gethostname())
 
-
-MODEL_PATH = os.getenv("YOLO_MODEL_PATH", "./models/yolo26x.pt")
+MODEL_PATH = os.getenv(
+    "YOLO_MODEL_PATH", "./src/picture_identification/models/yolo26x.pt"
+)
