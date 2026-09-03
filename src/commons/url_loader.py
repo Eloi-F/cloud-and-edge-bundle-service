@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 
 _CONFIG_PATH = Path(__file__).resolve().parent / "urls_config.json"
-print(_CONFIG_PATH)
 
 with open(_CONFIG_PATH, "r", encoding="utf-8") as f:
     _CONFIG = json.load(f)

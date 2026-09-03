@@ -4,14 +4,13 @@ import sys
 import uvicorn
 from pathlib import Path
 from fastapi import FastAPI
-# from fastapi.responses import FileResponse
+from osmnx import graph
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.commons.schemas import TrajectoryRequest
-# from src.navigation.app.core.trajectory_logic import build_trajectory_map
-from src.odrl.pep.enforcer import verify_permissions
-# from src.odrl.pep.enforcer import enforce_duties
+from src.commons.schemas import TrajectoryRequest, TrajectoryResponse
+from src.navigation.app.core.trajectory_logic import compute_shortest_path
+from src.odrl.pep.enforcer import verify_permissions, enforce_duties
 from src.odrl.odrl_eval import ODRLEvaluator
 from src.logging_config.logging_config import setup_logging
 
@@ -19,6 +18,15 @@ evaluator = ODRLEvaluator("./src/navigation/policies")
 logger = logging.getLogger(__name__)
 setup_logging()
 app = FastAPI()
+
+logger.debug("Loading Toulouse map...")
+toulouse_map = graph.graph_from_address(
+    "Place du Capitole, 31000 Toulouse",
+    2000,
+    dist_type="network",
+    network_type="all"
+)
+logger.debug("Successfully downloaded Toulouse map. 5km around Place du Capitole.")
 
 
 @app.post("/trajectory_planning")
@@ -35,18 +43,23 @@ async def navigation_endpoint(data: TrajectoryRequest):
     history, pending_duties = verify_permissions(
         evaluator, data.bundle_id, data.metadata
     )
-    logger.debug("Building TrainingData object to send to /storage endpoint.")
 
-    # folium_map = build_trajectory_map(data.start_address, data.destination_address)
-    # map_file = "map.html"
-    # folium_map.save(map_file)
-    #
-    # enforce_duties(evaluator, history=history, duties=pending_duties, payload={})
-    #
-    # logger.info("Sending back FileResponse.")
-    # return FileResponse(map_file, media_type="file", filename=map_file)
+    route = compute_shortest_path(
+        toulouse_map,
+        data.start_address,
+        data.destination_address
+    )
 
-    return {"success": "True"}
+    enforce_duties(
+        evaluator,
+        bundle_id=data.bundle_id,
+        history=history,
+        duties=pending_duties,
+        payload={}
+    )
+
+    logger.debug("Sending back shortest path.")
+    return TrajectoryResponse(route=route)
 
 
 if __name__ == "__main__":

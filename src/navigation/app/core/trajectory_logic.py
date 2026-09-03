@@ -1,68 +1,61 @@
-"""
-Trajectory planning Service implementation
-==========================================
-
-This service provides endpoint function to perform shortest
-path determination.
-
-It also set the Google API key using environment variable.
-"""
-import os
-
-import googlemaps
-from datetime import datetime
-import folium
-import polyline
-
 import logging
+
+from fastapi import HTTPException
+from osmnx import geocoder, distance, routing, graph
+
 logger = logging.getLogger(__name__)
 
-api_key = os.environ.get("GOOGLE_MAPS_API_KEY")
-if not api_key:
-	raise EnvironmentError("GOOGLE_MAPS_API_KEY environment variable is not set")
-gmaps = googlemaps.Client(key=api_key)
 
 
-def build_trajectory_map(start_address: str, destination_address: str):
-	"""
-	Performs shortest path determination for given
-	addresses.
-	:param start_address:
-	:param destination_address:
-	:return: folium map containing itinerary
-	"""
-	# Call Google Maps API to determine the shortest path
-	logger.debug(f"Calling Google Maps API from {start_address} to {destination_address}.")
-	directions_result = gmaps.directions(
-		start_address,
-		destination_address,
-		mode="driving",
-		departure_time=datetime.now(),
-	)
 
-	# Building Folium Map elements
-	route = directions_result[0]["overview_polyline"]["points"]
-	points = polyline.decode(route)
-	latitudes = [point[0] for point in points]
-	longitudes = [point[1] for point in points]
-	map_center = [latitudes[0], longitudes[0]]
-	folium_map = folium.Map(location=map_center, zoom_start=13)
-	route_coordinates = list(zip(latitudes, longitudes))
+def compute_shortest_path(
+        city_map: graph.MultiDiGraph,
+        start_address: str,
+        destination_address: str
+) -> list[str] :
+    """
+    Performs shortest path determination for given
+    addresses.
+    :param city_map:
+    :param start_address:
+    :param destination_address:
+    :return: list of streets to cross
+    """
 
-	# Drawing Folium Map
-	folium.PolyLine(route_coordinates, color="blue", weight=5, opacity=0.7).add_to(
-		folium_map
-	)
-	folium.Marker(
-		location=[latitudes[0], longitudes[0]],
-		popup="Départ",
-		icon=folium.Icon(color="green"),
-	).add_to(folium_map)
-	folium.Marker(
-		location=[latitudes[-1], longitudes[-1]],
-		popup="Arrivée",
-		icon=folium.Icon(color="red"),
-	).add_to(folium_map)
+    try :
+        osm_start_coords = geocoder.geocode(start_address)
+        osm_dest_coords = geocoder.geocode(destination_address)
+        logger.debug("Determined coordinates of start address (%s) and destination address (%s)",
+                     osm_start_coords, osm_dest_coords)
 
-	logger.debug(f"Computed shortest path from {start_address} to {destination_address}.")
-	return folium_map
+        osm_start_id = distance.nearest_nodes(
+            city_map,
+            osm_start_coords[1],
+            osm_start_coords[0],
+        )
+        osm_dest_id = distance.nearest_nodes(
+            city_map,
+            osm_dest_coords[1],
+            osm_dest_coords[0],
+        )
+        logger.debug("Determined id of start address (%s) and destination address (%s)",
+                     osm_start_id, osm_dest_id)
+
+        route = routing.shortest_path(
+            city_map,
+            osm_start_id,
+            osm_dest_id,
+            weight="length"
+        )
+        streets = []
+        for u, v in zip(route[:-1], route[1:]):
+            edge = next(iter(city_map[u][v].values()))
+            name = edge.get("name")
+            if name is not None and (not streets or streets[-1] != name):
+                streets.append(name)
+        logger.debug("Compute path : %s", streets)
+
+        return streets
+    except Exception:
+        logger.error("Could not identify given address.")
+        raise HTTPException(status_code=204,detail="Error on given addresses")

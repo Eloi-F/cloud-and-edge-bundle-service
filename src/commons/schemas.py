@@ -67,3 +67,6 @@ class TrajectoryRequest(BaseModel):
     metadata: dict
     start_address: str
     destination_address: str
+
+class TrajectoryResponse(BaseModel):
+    route: list[str]
